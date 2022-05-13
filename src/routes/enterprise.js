@@ -16,4 +16,6 @@ app.use(express.static('public'));
 
 router.get('/', EnterpriseController.getAll);
 
+router.post('/', EnterpriseController.create);
+
 module.exports = router;

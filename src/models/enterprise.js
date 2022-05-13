@@ -13,9 +13,9 @@ const EnterpriseSchema = new mongoose.Schema(
     hotline: {
       type: String,
     },
-    isActive: {
+    isDeleted: {
       type: String,
-      default: 'yes',
+      default: 'no',
     },
   },
   {
