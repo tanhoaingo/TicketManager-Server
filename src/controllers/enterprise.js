@@ -17,7 +17,7 @@ const EnterpriseController = {
     try {
       const saved = await newEnterprise.save();
 
-      res.status(200).json(saved);
+      res.status(201).json(saved);
     } catch (err) {
       res.status(500).json(err);
     }

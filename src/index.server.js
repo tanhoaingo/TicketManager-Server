@@ -5,6 +5,8 @@ const cors = require('cors');
 const path = require('path');
 const AppError = require('./pages/AppError');
 
+const admin_authRoutes = require('./routes/admin/auth');
+
 const enterpriseRoutes = require('./routes/enterprise');
 
 const app = express();
@@ -36,6 +38,8 @@ app.get('/', (req, res, next) => {
 
   return next(error);
 });
+
+app.use('/api/admin', admin_authRoutes);
 
 app.use('/api/enterprise', enterpriseRoutes);
 
