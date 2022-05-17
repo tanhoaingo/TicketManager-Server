@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const { Role } = require('../appConstants');
 
 const userSchema = new mongoose.Schema(
   {
@@ -36,8 +37,8 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['user', 'admin', 'steersman'],
-      default: 'user',
+      enum: [Role.USER, Role.ADMIN, 'steersman'],
+      default: Role.USER,
     },
     avatar: { type: String },
   },
