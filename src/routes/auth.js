@@ -1,16 +1,20 @@
 const express = require('express');
-const AuthController = require('../../controllers/admin/auth');
-const validator = require('../../validators');
+const AuthController = require('../controllers/auth');
+const validator = require('../validators');
 
 const router = express.Router();
 
 router
   .route('/signup')
+  .post(validator.validateSignupRequest, validator.isValidRequest, AuthController.signup);
+
+router
+  .route('/admin/signup')
   .post(
     validator.validateSignupRequest,
     validator.validateAdminSignupRequest,
     validator.isValidRequest,
-    AuthController.signup
+    AuthController.adminSignup
   );
 
 router

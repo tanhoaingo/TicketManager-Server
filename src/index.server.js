@@ -5,7 +5,7 @@ const cors = require('cors');
 const path = require('path');
 const AppError = require('./pages/AppError');
 
-const admin_authRoutes = require('./routes/admin/auth');
+const admin_authRoutes = require('./routes/auth');
 
 const enterpriseRoutes = require('./routes/enterprise');
 
@@ -39,7 +39,7 @@ app.get('/', (req, res, next) => {
   return next(error);
 });
 
-app.use('/api/admin', admin_authRoutes);
+app.use('/api', admin_authRoutes);
 
 app.use('/api/enterprise', enterpriseRoutes);
 

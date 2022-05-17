@@ -1,9 +1,23 @@
-const { User } = require('../../models');
+const { User } = require('../models');
 const jwt = require('jsonwebtoken');
+const { Role } = require('../appConstants');
 
 const AuthController = {
   signup: async (req, res) => {
     const newUser = new User(req.body);
+
+    try {
+      const saved = await newUser.save();
+
+      res.status(201).json(saved);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+
+  adminSignup: async (req, res) => {
+    const newUser = new User(req.body);
+    newUser.role = Role.ADMIN;
 
     try {
       const saved = await newUser.save();
