@@ -53,10 +53,10 @@ userSchema.virtual('fullName').get(function () {
 });
 
 userSchema.methods = {
-  authenticate: function (password) {
-    var result = false;
+  authenticate: async function (password) {
+    let result = false;
 
-    bcrypt.compare(password, this.hash_password, function (err, same) {
+    await bcrypt.compare(password, this.hash_password, function (err, same) {
       result = same;
     });
 

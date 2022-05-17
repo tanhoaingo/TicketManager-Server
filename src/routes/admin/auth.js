@@ -13,4 +13,8 @@ router
     AuthController.signup
   );
 
+router
+  .route('/signin')
+  .post(validator.validateSigninRequest, validator.isValidRequest, AuthController.signin);
+
 module.exports = router;
