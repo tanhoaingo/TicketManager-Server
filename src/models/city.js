@@ -5,6 +5,10 @@ const CitySchema = new mongoose.Schema(
         name: {
             type: String,
             required: true
+        },
+        indexCity: {
+            type: Number,
+            required: true
         }
     },
     {

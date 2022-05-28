@@ -8,6 +8,11 @@ const AppError = require('./pages/AppError');
 const enterpriseRoutes = require('./routes/enterprise');
 const cityRoutes = require("./routes/city.js");
 const tripRoutes = require("./routes/trip.js");
+const routeRoutes = require("./routes/route");
+const userRoutes = require("./routes/user");
+const profilesRoutes = require("./routes/profiles.js");
+const customerRoutes = require("./routes/customer");
+const driveRoutes = require("./routes/drive");
 
 const app = express();
 
@@ -42,6 +47,13 @@ app.get('/', (req, res, next) => {
 app.use('/api/enterprise', enterpriseRoutes);
 app.use("/api/city", cityRoutes);
 app.use("/api/trip", tripRoutes);
+app.use("/api/route", routeRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api", profilesRoutes);
+app.use("/api/customer", customerRoutes);
+app.use("/api/drive", driveRoutes);
+
+
 
 app.all('*', (req, res, next) => {
   const error = new AppError(`Can't find ${req.originalUrl} on this server`, 404);
