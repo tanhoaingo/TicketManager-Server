@@ -8,11 +8,11 @@ const RouteSchema = new mongoose.Schema(
       required: true,
     },
     startLocation: {
-      type: String,
+      type: Number,
       required: true,
     },
     endLocation: {
-      type: String,
+      type: Number,
       required: true,
     },
     startTime: {

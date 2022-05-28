@@ -13,6 +13,11 @@ const userRoutes = require("./routes/user");
 const profilesRoutes = require("./routes/profiles.js");
 const customerRoutes = require("./routes/customer");
 const driveRoutes = require("./routes/drive");
+const steersmanRoutes = require("./routes/steersman");
+const authRoutes = require("./routes/auth.js");
+const adminRoutes = require("./routes/admin/auth");
+const vehicleRoutes = require("./routes/vehicle");
+const wagonsRoutes = require("./routes/wagons");
 
 const app = express();
 
@@ -52,6 +57,11 @@ app.use("/api/user", userRoutes);
 app.use("/api", profilesRoutes);
 app.use("/api/customer", customerRoutes);
 app.use("/api/drive", driveRoutes);
+app.use("/api/steersman", steersmanRoutes);
+app.use("/api", authRoutes);
+app.use("/api", adminRoutes);
+app.use("/api/vehicle", vehicleRoutes);
+app.use("/api/wagon", wagonsRoutes);
 
 
 

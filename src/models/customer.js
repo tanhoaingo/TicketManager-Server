@@ -1,10 +1,10 @@
-const { userSchema } = require("./user.js");
 const mongoose = require("mongoose");
 
 const CustomerSchema = new mongoose.Schema(
     {
         information: {
-            type: userSchema,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
             required: true
         }
     },

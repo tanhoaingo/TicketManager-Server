@@ -11,7 +11,7 @@ const VehicleSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    totalWagons: {
+    wagons: {
       type: Array,
       required: true,
     },
