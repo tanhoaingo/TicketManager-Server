@@ -5,7 +5,7 @@ const Trip = require("../models/trip.js");
 // const Ticket = require("../models/ticket");
 // const UserTicket = require("../models/user_ticket");
 // const OfflineTicket = require("../models/offline_phone_ticket");
-// const Rules = require("../models/rule");
+// const Rules = requfire("../models/rule");
 
 exports.getAll = async (req, res) => {
   try {
