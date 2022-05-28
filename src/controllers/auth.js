@@ -1,77 +1,77 @@
 const User = require("../models/user.js");
 const Profile = require("../models/profile");
 const jwt = require("jsonwebtoken");
-const { validationResult } = require("express-validator");
+// const { validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 
-exports.getNewUser = async (req, res) => {
-  try {
-    const { month, year } = req.body;
-    const newUser = await User.aggregate(
-      [
-        {
-          '$project': {
-            'date': '$createdAt',
-            'month': {
-              '$month': '$createdAt'
-            },
-            'year': {
-              '$year': '$createdAt'
-            }
-          }
-        }, {
-          '$match': {
-            'month': month,
-            'year': year
-          }
-        }, {
-          '$group': {
-            '_id': {
-              '$dateToString': {
-                'format': '%Y-%m-%d',
-                'date': '$date'
-              }
-            },
-            'newUser': {
-              '$sum': 1
-            }
-          }
-        }, {
-          '$sort': {
-            '_id': 1
-          }
-        }
-      ]
-    )
+// exports.getNewUser = async (req, res) => {
+//   try {
+//     const { month, year } = req.body;
+//     const newUser = await User.aggregate(
+//       [
+//         {
+//           '$project': {
+//             'date': '$createdAt',
+//             'month': {
+//               '$month': '$createdAt'
+//             },
+//             'year': {
+//               '$year': '$createdAt'
+//             }
+//           }
+//         }, {
+//           '$match': {
+//             'month': month,
+//             'year': year
+//           }
+//         }, {
+//           '$group': {
+//             '_id': {
+//               '$dateToString': {
+//                 'format': '%Y-%m-%d',
+//                 'date': '$date'
+//               }
+//             },
+//             'newUser': {
+//               '$sum': 1
+//             }
+//           }
+//         }, {
+//           '$sort': {
+//             '_id': 1
+//           }
+//         }
+//       ]
+//     )
 
-    let listUser = [];
-    var day = new Date(year, month, 0).getDate();
+//     let listUser = [];
+//     var day = new Date(year, month, 0).getDate();
 
-    if (newUser.length == day) {
-      for (var i = 0; i < newUser.length; i++) {
-        listUser.push(newUser[i].newUser);
-      }
-    } else {
-      for (var i = 1, j = 0; i <= day; i++) {
-        if (j == newUser.length) {
-          listUser.push(0);
-        } else if (
-          newUser[j]._id ==
-          (i < 10 ? `${year}-${month}-0${i}` : `${year}-${month}-${i}`)
-        ) {
-          listUser.push(newUser[j].newUser);
-          j++;
-        } else {
-          listUser.push(0);
-        }
-      }
-    }
+//     if (newUser.length == day) {
+//       for (var i = 0; i < newUser.length; i++) {
+//         listUser.push(newUser[i].newUser);
+//       }
+//     } else {
+//       for (var i = 1, j = 0; i <= day; i++) {
+//         if (j == newUser.length) {
+//           listUser.push(0);
+//         } else if (
+//           newUser[j]._id ==
+//           (i < 10 ? `${year}-${month}-0${i}` : `${year}-${month}-${i}`)
+//         ) {
+//           listUser.push(newUser[j].newUser);
+//           j++;
+//         } else {
+//           listUser.push(0);
+//         }
+//       }
+//     }
 
-    res.status(200).json(listUser);
-  } catch (err) {
-    res.status(500).json({ error: err });
-  }
-};
+//     res.status(200).json(listUser);
+//   } catch (err) {
+//     res.status(500).json({ error: err });
+//   }
+// };
 
 exports.signup = async (req, res) => {
   User.findOne({ email: req.body.email }).exec((error, user) => {
