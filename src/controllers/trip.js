@@ -1,8 +1,12 @@
 const Trip = require("../models/trip.js");
-// const Vehicles = require("../models/vehicle.js");
-const Route = require("../models/route");
-// const Enterprise = require("../models/enterprise");
-// const Ticket = require("../models/ticket");
+const Route = require("../models/route.js");
+const Vehicle = require("../models/vehicle.js");
+const Ticket = require("../models/ticket.js");
+const Enterprise = require("../models/enterprise");
+const WagonTicket = require("../models/wagonTicket.js");
+const Seat = require("../models/seat.js");
+const Wagon = require("../models/wagons.js");
+const City = require("../models/city.js");
 // const UserTicket = require("../models/user_ticket");
 // const OfflineTicket = require("../models/offline_phone_ticket");
 // const Rules = requfire("../models/rule");
@@ -65,10 +69,20 @@ exports.getById = async (req, res) => {
 exports.fetchAll = async (req, res) => {
   try {
 
+    let payload = [];
+
+
     const { startIndex, endIndex, startDate } = req.body;
 
     const trips = await Trip.find();
     const routes = await Route.find();
+    const tickets = await Ticket.find();
+    const vehicles = await Vehicle.find();
+    const enterprises = await Enterprise.find();
+    const wagonTickets = await WagonTicket.find();
+    const seats = await Seat.find();
+    const wagons = await Wagon.find();
+    const cities = await City.find();
 
     const filteredRoutes = routes.filter((route) => {
       let isValid = true;
@@ -84,7 +98,59 @@ exports.fetchAll = async (req, res) => {
       }
     });
 
-    res.status(200).json(filteredTrips);
+    let totalCities = 0;
+    cities.map((item, ind) => totalCities += 1)
+
+
+    filteredTrips.map((trip => {
+      let result = {};
+      // let arrWagonTicket = [];
+      let arrSeat = [];
+      let countSeat = 0;
+      vehicles
+        .filter((item) => trip.idVehicle.equals(item._id))
+        .map((item) => {
+          (result.idTrain = item.idTrain, result.typeOfSpeed = item.typeOfSpeed)
+          for (let i in item.wagons) {
+            for (let w of wagons) {
+              if (w.idWagon == item.wagons[i]) {
+                countSeat = countSeat += w.totalSeat;
+              }
+            }
+          }
+        });
+      routes
+        .filter((item) => trip.idRoute.equals(item._id))
+        .map((item) => {
+          (result.startTime = item.startTime, result.totalTime = item.totalTime)
+          enterprises
+            .filter((enterprise) => item.idEnterprise.equals(enterprise._id))
+            .map((enterprise) => (result.name = enterprise.name));
+        });
+
+      tickets
+        .filter((item) => item.idTrip.equals(trip._id))
+        .map((item) => {
+          // result.ticket = item
+          wagonTickets
+            .filter((wagon) => wagon.idTicket.equals(item._id))
+            .map((wagon) => {
+              seats
+                .filter((seat) => seat.idWagonTicket.equals(wagon._id))
+                .map((seat) => {
+                  arrSeat.push(seat)
+                })
+            })
+          result.totalSeat = countSeat;
+          result.seatBought = arrSeat.length;
+          result.s = (result.totalTime / totalCities * startIndex + result.startTime);
+          result.e = (result.startTime + (result.totalTime / totalCities) * (endIndex - startIndex))
+        });
+      payload.push(result);
+    }))
+
+
+    res.status(200).json(payload);
   } catch (err) {
     res.status(500).json({ error: err });
     console.log(err)
