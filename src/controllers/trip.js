@@ -1,6 +1,6 @@
 const Trip = require("../models/trip.js");
-// const Vehicle = require("../models/vehicle.js");
-// const Route = require("../models/route");
+// const Vehicles = require("../models/vehicle.js");
+const Route = require("../models/route");
 // const Enterprise = require("../models/enterprise");
 // const Ticket = require("../models/ticket");
 // const UserTicket = require("../models/user_ticket");
@@ -36,7 +36,7 @@ exports.getById = async (req, res) => {
 //     const tickets = await Ticket.find();
 //     const rules = await Rules.find();
 //     trips
-//       .filter((trip) => new Date(trip.startDate - 24*3600*1000*rules[0].book) >= Date.now())
+//       .filter((trip) => new Date(trip.startDate - 24 * 3600 * 1000 * rules[0].book) >= Date.now())
 //       .map((trip) => {
 //         let result = {};
 //         result.trip = trip;
@@ -61,6 +61,35 @@ exports.getById = async (req, res) => {
 //     res.status(500).json({ error: err });
 //   }
 // };
+
+exports.fetchAll = async (req, res) => {
+  try {
+
+    const { startIndex, endIndex, startDate } = req.body;
+
+    const trips = await Trip.find();
+    const routes = await Route.find();
+
+    const filteredRoutes = routes.filter((route) => {
+      let isValid = true;
+      isValid = isValid && (route.endLocation - route.startLocation) * (endIndex - startIndex) > 0;
+      return isValid;
+    });
+
+    const filteredTrips = trips.filter((trip) => {
+      for (let route of filteredRoutes) {
+        let isValid = true;
+        isValid = isValid && trip.startDate == new Date(startDate).toString() && trip.idRoute.toString() == route._id.toString();
+        return isValid;
+      }
+    });
+
+    res.status(200).json(filteredTrips);
+  } catch (err) {
+    res.status(500).json({ error: err });
+    console.log(err)
+  }
+}
 
 exports.create = async (req, res) => {
   const newTrip = new Trip(req.body);

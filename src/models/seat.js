@@ -10,11 +10,11 @@ const SeatSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    startTime: {
+    startIndex: {
         type: Number,
         required: true
     },
-    endTime: {
+    endIndex: {
         type: Number,
         required: true
     }

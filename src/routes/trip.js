@@ -4,7 +4,7 @@ const {
   getAll,
   update,
   deleteById,
-  // fetchAll,
+  fetchAll,
   // getInforbyID,
 } = require("../controllers/trip.js");
 
@@ -16,7 +16,7 @@ router.get("/id=:id", getById);
 
 router.get("/", getAll);
 
-// router.get("/fetch", fetchAll);
+router.post("/fetch", fetchAll);
 
 router.put("/:id", update);
 
