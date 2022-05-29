@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const SeatSchema = new mongoose.Schema({
-    idTicket: {
+    idWagonTicket: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'WagonTicket',
         required: true

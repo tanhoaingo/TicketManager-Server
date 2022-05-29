@@ -18,6 +18,10 @@ const authRoutes = require("./routes/auth.js");
 const adminRoutes = require("./routes/admin/auth");
 const vehicleRoutes = require("./routes/vehicle");
 const wagonsRoutes = require("./routes/wagons");
+const ticketRoutes = require("./routes/ticket.js");
+const wagonTicketRoutes = require("./routes/wagonTicket.js");
+const seatRoutes = require("./routes/seat.js");
+const cusTicketRoutes = require("./routes/cusTicket.js");
 
 const app = express();
 
@@ -62,6 +66,10 @@ app.use("/api", authRoutes);
 app.use("/api", adminRoutes);
 app.use("/api/vehicle", vehicleRoutes);
 app.use("/api/wagon", wagonsRoutes);
+app.use("/api/ticket", ticketRoutes);
+app.use("/api/wagonTicket", wagonTicketRoutes);
+app.use("/api/seat", seatRoutes);
+app.use("/api/cusTicket", cusTicketRoutes);
 
 
 
