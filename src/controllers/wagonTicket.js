@@ -55,6 +55,8 @@ exports.getAllByIdTrip = async (req, res) => {
         payload.push({ ...wagonTicket._doc, filteredSeats });
       });
       res.status(200).json(payload);
+    } else {
+      res.status(500).json('Not Found');
     }
   } catch (err) {
     res.status(500).json({ error: err });
