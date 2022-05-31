@@ -1,34 +1,36 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const CusTicketSchema = new mongoose.Schema({
+const CusTicketSchema = new mongoose.Schema(
+  {
     idSeat: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Seat',
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Seat',
+      required: true,
     },
-    idUser: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+    idInvoice: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Invoice',
+      required: true,
     },
     cusName: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     cusID: {
-        type: Number,
-        required: true
+      type: Number,
+      required: true,
     },
     cusAge: {
-        type: Number,
-        required: true
+      type: Number,
+      required: true,
     },
     isCancel: {
-        type: Boolean,
-        required: true,
-        default: false
-    }
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+  },
+  { timestamps: true }
+);
 
-}, { timestamps: true });
-
-module.exports = mongoose.model("CusTicket", CusTicketSchema);
+module.exports = mongoose.model('CusTicket', CusTicketSchema);
