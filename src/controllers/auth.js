@@ -1,8 +1,8 @@
-const User = require("../models/user.js");
-const Profile = require("../models/profile");
-const jwt = require("jsonwebtoken");
+const User = require('../models/user.js');
+const Profile = require('../models/profile');
+const jwt = require('jsonwebtoken');
 // const { validationResult } = require("express-validator");
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcrypt');
 
 // exports.getNewUser = async (req, res) => {
 //   try {
@@ -77,7 +77,7 @@ exports.signup = async (req, res) => {
   User.findOne({ email: req.body.email }).exec((error, user) => {
     if (user)
       return res.status(400).json({
-        message: "Email already registered",
+        message: 'Email already registered',
       });
   });
   // User.findOne({ username: req.body.username }).exec((error, user) => {
@@ -87,8 +87,7 @@ exports.signup = async (req, res) => {
   //     });
   // });
 
-  const { firstName, lastName, email, password, username, contactNumber } =
-    req.body;
+  const { firstName, lastName, email, password, username, contactNumber } = req.body;
   const hash_password = await bcrypt.hash(password, 10);
   const _user = new User({
     firstName,
@@ -99,6 +98,9 @@ exports.signup = async (req, res) => {
     contactNumber,
   });
 
+  const token = jwt.sign({ _id: _user.id }, process.env.JWT_SECRET, {
+    expiresIn: '1h',
+  });
   _user.save((error, data) => {
     if (error) {
       return res.status(400).json({
@@ -107,8 +109,9 @@ exports.signup = async (req, res) => {
     }
     if (data) {
       return res.status(201).json({
-        message: "Create successfully",
-        _user,
+        message: 'Create successfully',
+        user: _user,
+        token,
       });
     }
   });
@@ -135,19 +138,12 @@ exports.signin = (req, res) => {
   User.findOne({ email: req.body.email }).exec((error, user) => {
     if (error) return res.status(400).json({ error });
     if (user) {
-      if (user.authenticate(req.body.password)) {
+      const checkAuthen = bcrypt.compareSync(req.body.password, user.hash_password);
+      if (checkAuthen) {
         const token = jwt.sign({ _id: user.id }, process.env.JWT_SECRET, {
-          expiresIn: "1h",
+          expiresIn: '1h',
         });
-        const {
-          _id,
-          firstName,
-          lastName,
-          email,
-          role,
-          fullName,
-          contactNumber,
-        } = user;
+        const { _id, firstName, lastName, email, role, fullName, contactNumber } = user;
         res.status(200).json({
           token,
           user: {
@@ -159,15 +155,15 @@ exports.signin = (req, res) => {
             fullName,
             contactNumber,
           },
-          message: "Login successfully <3",
+          message: 'Login successfully <3',
         });
       } else {
         return res.status(400).json({
-          message: "Invalid password",
+          message: 'Invalid password',
         });
       }
     } else {
-      return res.status(400).json({ message: "Something went wrong" });
+      return res.status(400).json({ message: 'Something went wrong' });
     }
   });
 };

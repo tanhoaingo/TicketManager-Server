@@ -5,7 +5,7 @@ const InvoiceSchema = new mongoose.Schema(
     idUser: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
+      required: false,
     },
     idTicket: {
       type: mongoose.Schema.Types.ObjectId,
