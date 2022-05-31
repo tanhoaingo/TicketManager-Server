@@ -6,6 +6,10 @@ const WagonTicketSchema = new mongoose.Schema({
         ref: 'Ticket',
         required: true
     },
+    idWagon: {
+        type: Number,
+        required: true
+    },
     wagon: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Wagons',

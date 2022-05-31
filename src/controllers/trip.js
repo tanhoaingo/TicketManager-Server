@@ -99,7 +99,7 @@ exports.fetchAll = async (req, res) => {
     });
 
     let totalCities = 0;
-    cities.map((item, ind) => totalCities += 1)
+    cities.map(() => totalCities += 1)
 
 
     filteredTrips.map((trip => {
