@@ -18,4 +18,6 @@ router.get('/', EnterpriseController.getAll);
 
 router.post('/', EnterpriseController.create);
 
+router.get('/:id', EnterpriseController.getInforbyID);
+
 module.exports = router;
