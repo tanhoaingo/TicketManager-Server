@@ -1,17 +1,13 @@
 // const { PersonSchema } = require("./person.js");
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const SteersmanSchema = new mongoose.Schema(
   {
     idUser: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
-    },
-    idProfile: {
-      type: Schema.Types.ObjectId,
-      ref: "Profile",
     },
     position: {
       type: String,
@@ -19,16 +15,16 @@ const SteersmanSchema = new mongoose.Schema(
     },
     idEnterprise: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Enterprise",
+      ref: 'Enterprise',
       required: true,
     },
     isActive: {
       type: String,
-      default: "yes",
+      default: 'yes',
     },
     idVehicle: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Vehicle",
+      ref: 'Vehicle',
     },
   },
   {
@@ -36,4 +32,4 @@ const SteersmanSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Steersman", SteersmanSchema);
+module.exports = mongoose.model('Steersman', SteersmanSchema);

@@ -1,4 +1,6 @@
-const { Enterprise, Route, Vehicle, Profile, Steersman } = require('../models');
+const { Enterprise, Route, Vehicle } = require('../models');
+const Profile = require('../models/profile');
+const steersman = require('../models/steersman');
 
 const EnterpriseController = {
   getAll: async (req, res) => {
@@ -45,9 +47,10 @@ const EnterpriseController = {
       const vehicles = await Vehicle.find({
         idEnterprise: enterprise._id,
       }).exec();
-      var steersmans = await Steersman.find({
-        idEnterprise: enterprise._id,
-      })
+      const steersmans = await steersman
+        .find({
+          idEnterprise: enterprise._id,
+        })
         .populate('idUser')
         .populate('idVehicle');
       let listSteersman = [];

@@ -1,15 +1,15 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const TripSchema = new mongoose.Schema(
   {
     idVehicle: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Vehicle",
+      ref: 'Vehicle',
       required: true,
     },
     idRoute: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Route",
+      ref: 'Route',
       required: true,
     },
     startDate: {
@@ -18,7 +18,12 @@ const TripSchema = new mongoose.Schema(
     },
     isActive: {
       type: String,
-      default: "yes",
+      default: 'yes',
+    },
+    idSteersman: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Steersman',
+      required: true,
     },
   },
   {
@@ -26,4 +31,4 @@ const TripSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Trip", TripSchema);
+module.exports = mongoose.model('Trip', TripSchema);
