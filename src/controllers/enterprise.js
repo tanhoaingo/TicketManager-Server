@@ -23,6 +23,21 @@ const EnterpriseController = {
     }
   },
 
+  update: async (req, res) => {
+    try {
+      const updated = await Enterprise.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: req.body,
+        },
+        { new: true }
+      );
+      res.status(200).json(updated);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+
   getInforbyID: async (req, res) => {
     try {
       const enterprise = await Enterprise.findById(req.params.id);
