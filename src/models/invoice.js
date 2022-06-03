@@ -2,11 +2,6 @@ const mongoose = require('mongoose');
 
 const InvoiceSchema = new mongoose.Schema(
   {
-    idUser: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: false,
-    },
     idTicket: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Ticket',
