@@ -5,7 +5,7 @@ const profile = require('../models/profile');
 
 exports.getAll = async (req, res) => {
   try {
-    const steersman = await Steersman.find().populate('idVehicle');
+    const steersman = await Steersman.find().populate('idVehicle').populate('idUser');
     res.status(200).json(steersman);
   } catch (err) {
     res.status(500).json({ error: err });

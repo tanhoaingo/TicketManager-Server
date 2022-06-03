@@ -5,11 +5,14 @@ const {
   getSeatInWagon,
   getTotalTicket_Sale,
   getDateByMonthYear,
+  createAllWagons,
 } = require('../controllers/wagonTicket.js');
 
 const router = require('express').Router();
 
 router.post('/create', create);
+
+router.post('/createAllWagons', createAllWagons);
 
 router.get('/', getAll);
 

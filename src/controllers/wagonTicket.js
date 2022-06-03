@@ -3,6 +3,8 @@ const Trip = require('../models/trip.js');
 const Ticket = require('../models/ticket.js');
 const Seat = require('../models/seat.js');
 const user = require('../models/user');
+const Vehicle = require('../models/vehicle');
+const Wagons = require('../models/wagons');
 
 exports.create = async (req, res) => {
   const newWagonTicket = new WagonTicket(req.body);
@@ -11,6 +13,36 @@ exports.create = async (req, res) => {
     const saved = await newWagonTicket.save();
     res.status(200).json(saved);
   } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+exports.createAllWagons = async (req, res) => {
+  try {
+    let payload = [];
+    const { idTrip } = req.body;
+    const trip = await Trip.findOne({ _id: idTrip });
+    const ticket = await Ticket.findOne({ idTrip: idTrip });
+    const vehicle = await Vehicle.findOne({ _id: trip.idVehicle });
+    const wagons = await Wagons.find();
+
+    for (let i in vehicle.wagons) {
+      for (let w of wagons) {
+        if (w.idWagon == vehicle.wagons[i]) {
+          const newWagonTicket = new WagonTicket({
+            idTicket: ticket._id,
+            numOfWagon: i,
+            wagon: w._id,
+            price: req.body.price,
+          });
+          const saved = await newWagonTicket.save();
+          payload.push(saved);
+        }
+      }
+    }
+    res.status(200).json(payload);
+  } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 };
