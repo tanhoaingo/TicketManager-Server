@@ -1,13 +1,17 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const VehicleSchema = new mongoose.Schema(
   {
     idEnterprise: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Enterprise",
+      ref: 'Enterprise',
       required: true,
     },
     idTrain: {
+      type: String,
+      required: true,
+    },
+    numPlate: {
       type: String,
       required: true,
     },
@@ -21,7 +25,7 @@ const VehicleSchema = new mongoose.Schema(
     },
     isActive: {
       type: String,
-      default: "yes",
+      default: 'yes',
     },
   },
   {
@@ -29,4 +33,4 @@ const VehicleSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Vehicle", VehicleSchema);
+module.exports = mongoose.model('Vehicle', VehicleSchema);
