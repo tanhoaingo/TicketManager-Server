@@ -5,6 +5,7 @@ const Seat = require('../models/seat.js');
 const user = require('../models/user');
 const Vehicle = require('../models/vehicle');
 const Wagons = require('../models/wagons');
+const cusTicket = require('../models/cusTicket');
 
 exports.create = async (req, res) => {
   const newWagonTicket = new WagonTicket(req.body);
@@ -70,19 +71,24 @@ exports.getAllByIdTrip = async (req, res) => {
 
     const seats = await Seat.find();
 
+    const cusTickets = await cusTicket.find();
+
     if (ticket) {
       const filteredWagonTickets = wagonTickets.filter(wagonTickets => {
         let isValid = true;
         isValid = isValid && wagonTickets.idTicket.equals(ticket._id);
         return isValid;
       });
-      // res.status(200).json(filteredWagonTickets);
 
       filteredWagonTickets.map(wagonTicket => {
         const filteredSeats = seats.filter(seat => {
-          let isValid = true;
-          isValid = isValid && seat.idWagonTicket.equals(wagonTicket._id);
-          return isValid;
+          for (let c of cusTickets) {
+            if (c.idSeat.equals(seat._id)) {
+              let isValid = true;
+              isValid = isValid && seat.idWagonTicket.equals(wagonTicket._id) && !c.isCancel;
+              return isValid;
+            }
+          }
         });
 
         payload.push({ ...wagonTicket._doc, filteredSeats });
@@ -149,6 +155,36 @@ exports.getTotalTicket_Sale = async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: 'custickets',
+          localField: '_id',
+          foreignField: 'idSeat',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $match: {
+          isCancel: false,
+        },
+      },
+      {
         $project: {
           date: '$createdAt',
           month: {
@@ -179,6 +215,95 @@ exports.getTotalTicket_Sale = async (req, res) => {
           },
           totalSale: {
             $sum: '$price',
+          },
+        },
+      },
+    ]);
+
+    const canceledTicket = await Seat.aggregate([
+      {
+        $lookup: {
+          from: 'wagontickets',
+          localField: 'idWagonTicket',
+          foreignField: '_id',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: 'custickets',
+          localField: '_id',
+          foreignField: 'idSeat',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $match: {
+          isCancel: true,
+        },
+      },
+      {
+        $project: {
+          date: '$createdAt',
+          month: {
+            $month: '$createdAt',
+          },
+          year: {
+            $year: '$createdAt',
+          },
+          price: '$price',
+        },
+      },
+      {
+        $match: {
+          month: month,
+          year: year,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: '%Y-%m',
+              date: '$date',
+            },
+          },
+          totalCanceledTicket: {
+            $sum: 1,
           },
         },
       },
@@ -225,21 +350,20 @@ exports.getTotalTicket_Sale = async (req, res) => {
     var totalTicket = 0;
     var totalSale = 0;
     var totalNewUser = 0;
+    var totalCanceledTicket = 0;
 
     if (result.length != 0) {
       totalTicket = result[0].totalTicket;
       totalSale = result[0].totalSale;
     }
-    // if (canceledTicket.length == 0) {
-    //   var totalCanceledTicket = 0;
-    // } else {
-    //   var totalCanceledTicket = canceledTicket[0].totalCanceledTicket;
-    // }
+    if (canceledTicket.length != 0) {
+      totalCanceledTicket = canceledTicket[0].totalCanceledTicket;
+    }
     if (newUser.length != 0) {
       totalNewUser = newUser[0].newUser;
     }
 
-    res.status(200).json({ totalTicket, totalSale, totalNewUser });
+    res.status(200).json({ totalTicket, totalSale, totalNewUser, totalCanceledTicket });
   } catch (err) {
     res.status(500).json({ error: err });
   }
@@ -276,6 +400,36 @@ exports.getDateByMonthYear = async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: 'custickets',
+          localField: '_id',
+          foreignField: 'idSeat',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $match: {
+          isCancel: false,
+        },
+      },
+      {
         $project: {
           date: '$createdAt',
           month: {
@@ -307,11 +461,6 @@ exports.getDateByMonthYear = async (req, res) => {
           totalSale: {
             $sum: '$price',
           },
-        },
-      },
-      {
-        $sort: {
-          _id: 1,
         },
       },
     ]);
@@ -349,6 +498,210 @@ exports.getDateByMonthYear = async (req, res) => {
       }
     }
     res.status(200).json({ listTicket, listSale });
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
+};
+
+exports.getReportEnterprises = async (req, res) => {
+  try {
+    const { month, year } = req.body;
+
+    const result = await Seat.aggregate([
+      {
+        $lookup: {
+          from: 'wagontickets',
+          localField: 'idWagonTicket',
+          foreignField: '_id',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: 'tickets',
+          localField: 'idTicket',
+          foreignField: '_id',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: 'trips',
+          localField: 'idTrip',
+          foreignField: '_id',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: 'routes',
+          localField: 'idRoute',
+          foreignField: '_id',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: 'enterprises',
+          localField: 'idEnterprise',
+          foreignField: '_id',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: 'custickets',
+          localField: '_id',
+          foreignField: 'idSeat',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $match: {
+          isCancel: false,
+        },
+      },
+      {
+        $project: {
+          name: '$name',
+          date: '$createdAt',
+          month: {
+            $month: '$createdAt',
+          },
+          year: {
+            $year: '$createdAt',
+          },
+          price: '$price',
+        },
+      },
+      {
+        $match: {
+          month: month,
+          year: year,
+        },
+      },
+      {
+        $group: {
+          _id: '$name',
+          totalTicket: {
+            $sum: 1,
+          },
+          totalSale: {
+            $sum: '$price',
+          },
+        },
+      },
+    ]);
+
+    let report = [];
+
+    for (let r of result) {
+      report.push(r);
+    }
+
+    res.status(200).json(report);
   } catch (err) {
     res.status(500).json({ error: err });
   }

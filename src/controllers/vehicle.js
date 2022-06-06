@@ -1,4 +1,4 @@
-const { Steersman } = require('../models');
+// const { Steersman } = require('../models');
 const Vehicle = require('../models/vehicle');
 
 exports.getAll = async (req, res) => {
@@ -129,15 +129,15 @@ exports.update = async (req, res) => {
       },
       { new: true }
     );
-    console.log(updated);
-    if (updated.isActive === 'no') {
-      const updated2 = await Steersman.updateMany(
-        { idVehicle: updated._id },
-        { $unset: { idVehicle: '' } },
-        { new: true }
-      );
-      console.log(updated2);
-    }
+    // console.log(updated);
+    // if (updated.isActive === 'no') {
+    //   const updated2 = await Steersman.updateMany(
+    //     { idVehicle: updated._id },
+    //     { $unset: { idVehicle: '' } },
+    //     { new: true }
+    //   );
+    //   console.log(updated2);
+    // }
     res.status(200).json(updated);
   } catch (err) {
     res.status(500).json(err);

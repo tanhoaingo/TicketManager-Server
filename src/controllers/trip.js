@@ -144,8 +144,16 @@ exports.fetchAll = async (req, res) => {
             });
           result.totalSeat = countSeat;
           result.seatBought = arrSeat.length;
-          result.s = (result.totalTime / totalCities) * startIndex + result.startTime;
-          result.e = result.startTime + (result.totalTime / totalCities) * (endIndex - startIndex);
+          result.s =
+            (endIndex - startIndex > 0
+              ? (result.totalTime / totalCities) * startIndex
+              : (result.totalTime / totalCities) * (totalCities - startIndex - 1)) +
+            result.startTime;
+          console.log(totalCities, startIndex, result.startTime);
+          result.e =
+            result.startTime +
+            (result.totalTime / totalCities) *
+              (endIndex - startIndex > 0 ? endIndex - startIndex : startIndex - endIndex);
         });
       payload.push(result);
     });
