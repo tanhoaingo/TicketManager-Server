@@ -7,6 +7,7 @@ const WagonTicket = require('../models/wagonTicket.js');
 const Seat = require('../models/seat.js');
 const Wagon = require('../models/wagons.js');
 const City = require('../models/city.js');
+const Rule = require('../models/rule.js');
 // const UserTicket = require("../models/user_ticket");
 // const OfflineTicket = require("../models/offline_phone_ticket");
 // const Rules = requfire("../models/rule");
@@ -81,10 +82,16 @@ exports.fetchAll = async (req, res) => {
     const seats = await Seat.find();
     const wagons = await Wagon.find();
     const cities = await City.find();
+    const rule = await Rule.findOne();
+
+    const curHour = new Date().getHours();
 
     const filteredRoutes = routes.filter(route => {
       let isValid = true;
-      isValid = isValid && (route.endLocation - route.startLocation) * (endIndex - startIndex) > 0;
+      isValid =
+        isValid &&
+        (route.endLocation - route.startLocation) * (endIndex - startIndex) > 0 &&
+        route.startTime - curHour > rule.book;
       return isValid;
     });
 
@@ -149,7 +156,6 @@ exports.fetchAll = async (req, res) => {
               ? (result.totalTime / totalCities) * startIndex
               : (result.totalTime / totalCities) * (totalCities - startIndex - 1)) +
             result.startTime;
-          console.log(totalCities, startIndex, result.startTime);
           result.e =
             result.startTime +
             (result.totalTime / totalCities) *
