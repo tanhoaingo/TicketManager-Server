@@ -7,6 +7,9 @@ const {
   getDateByMonthYear,
   createAllWagons,
   getReportEnterprises,
+  getCurrentDate,
+  getCurrentByEnterprisesList,
+  getCurrentByEnterprises,
 } = require('../controllers/wagonTicket.js');
 
 const router = require('express').Router();
@@ -26,5 +29,11 @@ router.post('/getTotalTicket_Sale', getTotalTicket_Sale);
 router.post('/getReportEnterprises', getReportEnterprises);
 
 router.post('/getDateByMonthYear', getDateByMonthYear);
+
+router.get('/getCurrentDate', getCurrentDate);
+
+router.get('/getCurrentByEnterprisesList', getCurrentByEnterprisesList);
+
+router.get('/getCurrentByEnterprises', getCurrentByEnterprises);
 
 module.exports = router;

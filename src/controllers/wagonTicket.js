@@ -6,6 +6,7 @@ const user = require('../models/user');
 const Vehicle = require('../models/vehicle');
 const Wagons = require('../models/wagons');
 const cusTicket = require('../models/cusTicket');
+const Enterprise = require('../models/enterprise');
 
 exports.create = async (req, res) => {
   const newWagonTicket = new WagonTicket(req.body);
@@ -498,6 +499,685 @@ exports.getDateByMonthYear = async (req, res) => {
       }
     }
     res.status(200).json({ listTicket, listSale });
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
+};
+
+exports.getCurrentByEnterprisesList = async (req, res) => {
+  try {
+    const bookingByEnterprises = await cusTicket.aggregate([
+      {
+        $lookup: {
+          from: 'seats',
+          localField: 'idSeat',
+          foreignField: '_id',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: 'wagontickets',
+          localField: 'idWagonTicket',
+          foreignField: '_id',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: 'tickets',
+          localField: 'idTicket',
+          foreignField: '_id',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: 'trips',
+          localField: 'idTrip',
+          foreignField: '_id',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: 'routes',
+          localField: 'idRoute',
+          foreignField: '_id',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: 'enterprises',
+          localField: 'idEnterprise',
+          foreignField: '_id',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(new Date().setUTCHours(0, 0, 0, 0)),
+            $lt: new Date(new Date().setUTCHours(23, 59, 59, 999)),
+          },
+          isCancel: false,
+          isDeleted: 'no',
+        },
+      },
+      {
+        $group: {
+          _id: '$name',
+          totalBooking: {
+            $sum: 1,
+          },
+          totalSale: {
+            $sum: '$price',
+          },
+        },
+      },
+    ]);
+
+    let data = [];
+
+    if (bookingByEnterprises.length == 0) {
+      const enterpriseList = await Enterprise.aggregate([
+        {
+          $match: {
+            isDeleted: 'no',
+          },
+        },
+      ]);
+
+      for (let i = 0; i < enterpriseList.length; i++) {
+        data.push({
+          username: enterpriseList[i].name,
+          order: '0',
+          price: '0',
+        });
+      }
+    } else {
+      const enterpriseList = await Enterprise.aggregate([
+        {
+          $match: {
+            isDeleted: 'no',
+          },
+        },
+      ]);
+      var temp = false;
+
+      for (let i = 0; i < enterpriseList.length; i++) {
+        for (let j = 0; j < bookingByEnterprises.length; j++) {
+          if (enterpriseList[i].name == bookingByEnterprises[j]._id) {
+            data.push({
+              username: enterpriseList[i].name,
+              order: bookingByEnterprises[j].totalBooking,
+              price: bookingByEnterprises[j].totalSale,
+            });
+            temp = true;
+          }
+        }
+        if (!temp) {
+          data.push({
+            username: enterpriseList[i].name,
+            order: '0',
+            price: '0',
+          });
+        } else {
+          temp = false;
+        }
+      }
+    }
+
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
+};
+
+exports.getCurrentByEnterprises = async (req, res) => {
+  try {
+    const bookingByEnterprises = await cusTicket.aggregate([
+      {
+        $lookup: {
+          from: 'seats',
+          localField: 'idSeat',
+          foreignField: '_id',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: 'wagontickets',
+          localField: 'idWagonTicket',
+          foreignField: '_id',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: 'tickets',
+          localField: 'idTicket',
+          foreignField: '_id',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: 'trips',
+          localField: 'idTrip',
+          foreignField: '_id',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: 'routes',
+          localField: 'idRoute',
+          foreignField: '_id',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: 'enterprises',
+          localField: 'idEnterprise',
+          foreignField: '_id',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(new Date().setUTCHours(0, 0, 0, 0)),
+            $lt: new Date(new Date().setUTCHours(23, 59, 59, 999)),
+          },
+          isCancel: false,
+          isDeleted: 'no',
+        },
+      },
+      {
+        $group: {
+          _id: '$name',
+          totalBooking: {
+            $sum: 1,
+          },
+          totalSale: {
+            $sum: '$price',
+          },
+        },
+      },
+    ]);
+
+    let booking = [];
+    let sale = [];
+
+    if (bookingByEnterprises.length == 0) {
+      const enterpriseList = await Enterprise.aggregate([
+        {
+          $match: {
+            isDeleted: 'no',
+          },
+        },
+      ]);
+      for (let i = 0; i < enterpriseList.length; i++) {
+        booking.push(0);
+        sale.push(0);
+      }
+    } else {
+      const enterpriseList = await Enterprise.aggregate([
+        {
+          $match: {
+            isDeleted: 'no',
+          },
+        },
+      ]);
+
+      var temp = false;
+
+      for (let i = 0; i < enterpriseList.length; i++) {
+        for (let j = 0; j < bookingByEnterprises.length; j++) {
+          if (enterpriseList[i].name == bookingByEnterprises[j]._id) {
+            booking.push(bookingByEnterprises[j].totalBooking);
+            sale.push(bookingByEnterprises[j].totalSale);
+            temp = true;
+          }
+        }
+        if (!temp) {
+          booking.push(0);
+          sale.push(0);
+        } else {
+          temp = false;
+        }
+      }
+    }
+
+    res.status(200).json({ booking, sale });
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
+};
+
+exports.getCurrentDate = async (req, res) => {
+  try {
+    const tripCD = await Trip.aggregate([
+      {
+        $match: {
+          startDate: new Date(new Date().setUTCHours(0, 0, 0, 0)),
+        },
+      },
+      {
+        $group: {
+          _id: '$startDate',
+          count: {
+            $sum: 1,
+          },
+        },
+      },
+    ]);
+
+    const ticketCD = await cusTicket.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(new Date().setUTCHours(0, 0, 0, 0)),
+            $lt: new Date(new Date().setUTCHours(23, 59, 59, 999)),
+          },
+          isCancel: false,
+        },
+      },
+      {
+        $project: {
+          date: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$createdAt',
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$date',
+          count: {
+            $sum: 1,
+          },
+        },
+      },
+    ]);
+    const cancelTicketCD = await cusTicket.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(new Date().setUTCHours(0, 0, 0, 0)),
+            $lt: new Date(new Date().setUTCHours(23, 59, 59, 999)),
+          },
+          isCancel: true,
+        },
+      },
+      {
+        $project: {
+          date: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$createdAt',
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$date',
+          count: {
+            $sum: 1,
+          },
+        },
+      },
+    ]);
+
+    const salesCD = await cusTicket.aggregate([
+      {
+        $lookup: {
+          from: 'seats',
+          localField: 'idSeat',
+          foreignField: '_id',
+          as: 'detail',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$detail', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          detail: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: 'wagonTickets',
+          localField: 'idWagonTicket',
+          foreignField: '_id',
+          as: 'detail',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$detail', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          detail: 0,
+        },
+      },
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(new Date().setUTCHours(0, 0, 0, 0)),
+            $lt: new Date(new Date().setUTCHours(23, 59, 59, 999)),
+          },
+          isCancel: false,
+        },
+      },
+      {
+        $project: {
+          date: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$createdAt',
+            },
+          },
+          price: '$price',
+        },
+      },
+      {
+        $group: {
+          _id: '$date',
+          count: {
+            $sum: '$price',
+          },
+        },
+      },
+    ]);
+    const newUser = await user.aggregate([
+      {
+        $match: {
+          role: 'user',
+          createdAt: {
+            $gte: new Date(new Date().setUTCHours(0, 0, 0, 0)),
+            $lt: new Date(new Date().setUTCHours(23, 59, 59, 999)),
+          },
+        },
+      },
+      {
+        $project: {
+          date: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$createdAt',
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$date',
+          count: {
+            $sum: 1,
+          },
+        },
+      },
+    ]);
+
+    let data = [
+      {
+        icon: 'bx bx-bus',
+        count: tripCD.length == 0 ? '0' : tripCD[0].count.toString(),
+        title: 'Số chuyến xe',
+      },
+      {
+        icon: 'bx bx-dollar-circle',
+        count: salesCD.length == 0 ? '0' : salesCD[0].count.toString(),
+        title: 'Doanh thu',
+      },
+      {
+        icon: 'bx bx-receipt',
+        count: ticketCD.length == 0 ? '0' : ticketCD[0].count.toString(),
+        title: 'Vé bán',
+      },
+      {
+        icon: 'bx bx-receipt',
+        count: cancelTicketCD.length == 0 ? '0' : cancelTicketCD[0].count.toString(),
+        title: 'Vé hủy',
+      },
+      {
+        icon: 'bx bx-receipt',
+        count: newUser.length == 0 ? '0' : newUser[0].count.toString(),
+        title: 'Người dùng mới',
+      },
+    ];
+
+    res.status(200).json(data);
   } catch (err) {
     res.status(500).json({ error: err });
   }
