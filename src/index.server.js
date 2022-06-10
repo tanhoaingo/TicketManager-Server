@@ -23,6 +23,8 @@ const wagonTicketRoutes = require('./routes/wagonTicket.js');
 const seatRoutes = require('./routes/seat.js');
 const cusTicketRoutes = require('./routes/cusTicket.js');
 const invoiceRoutes = require('./routes/invoice.js');
+
+const ruleRoutes = require('./routes/rule');
 const userBookingRoutes = require('./routes/userBooking');
 
 const app = express();
@@ -77,6 +79,9 @@ app.use('/api/wagonTicket', wagonTicketRoutes);
 app.use('/api/seat', seatRoutes);
 app.use('/api/cusTicket', cusTicketRoutes);
 app.use('/api/invoice', invoiceRoutes);
+
+app.use('/api/rule', ruleRoutes);
+
 app.use('/api/userBooking', userBookingRoutes);
 
 

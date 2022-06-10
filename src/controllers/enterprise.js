@@ -1,4 +1,6 @@
-const { Enterprise } = require('../models');
+const { Enterprise, Route, Vehicle } = require('../models');
+const Profile = require('../models/profile');
+const steersman = require('../models/steersman');
 
 const EnterpriseController = {
   getAll: async (req, res) => {
@@ -20,6 +22,54 @@ const EnterpriseController = {
       res.status(200).json(saved);
     } catch (err) {
       res.status(500).json(err);
+    }
+  },
+
+  update: async (req, res) => {
+    try {
+      const updated = await Enterprise.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: req.body,
+        },
+        { new: true }
+      );
+      res.status(200).json(updated);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+
+  getInforbyID: async (req, res) => {
+    try {
+      const enterprise = await Enterprise.findById(req.params.id);
+      const routes = await Route.find({ idEnterprise: enterprise._id }).exec();
+      const vehicles = await Vehicle.find({
+        idEnterprise: enterprise._id,
+      }).exec();
+      const steersmans = await steersman
+        .find({
+          idEnterprise: enterprise._id,
+        })
+        .populate('idUser')
+        .populate('idVehicle');
+      let listSteersman = [];
+      // var users = await user.find();
+      for (var i = 0; i < steersmans.length; i++) {
+        let ste = JSON.parse(JSON.stringify(steersmans[i]));
+        let profile = await Profile.findOne({ account: ste.idUser._id });
+        ste.profile = profile;
+        listSteersman.push(ste);
+      }
+      res.status(200).json({
+        enterprise: enterprise,
+        routes: routes,
+        vehicles: vehicles,
+        steersmans: listSteersman,
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ error: err });
     }
   },
 };

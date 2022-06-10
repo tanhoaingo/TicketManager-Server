@@ -6,22 +6,22 @@ const {
   deleteById,
   fetchAll,
   // getInforbyID,
-} = require("../controllers/trip.js");
+} = require('../controllers/trip.js');
 
-const router = require("express").Router();
+const router = require('express').Router();
 
-router.post("/create", create);
+router.post('/create', create);
 
-router.get("/id=:id", getById);
+router.get('/id=:id', getById);
 
-router.get("/", getAll);
+router.get('/', getAll);
 
-router.post("/fetch", fetchAll);
+router.post('/fetch', fetchAll);
 
-router.put("/:id", update);
+router.put('/:id', update);
 
-router.delete("/:id", deleteById);
+router.delete('/:id', deleteById);
 
-// router.get("/:id/informations", getInforbyID);
+// router.get('/:id/informations', getInforbyID);
 
 module.exports = router;

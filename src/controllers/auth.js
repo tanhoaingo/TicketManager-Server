@@ -4,74 +4,82 @@ const jwt = require('jsonwebtoken');
 // const { validationResult } = require("express-validator");
 const bcrypt = require('bcrypt');
 
-// exports.getNewUser = async (req, res) => {
-//   try {
-//     const { month, year } = req.body;
-//     const newUser = await User.aggregate(
-//       [
-//         {
-//           '$project': {
-//             'date': '$createdAt',
-//             'month': {
-//               '$month': '$createdAt'
-//             },
-//             'year': {
-//               '$year': '$createdAt'
-//             }
-//           }
-//         }, {
-//           '$match': {
-//             'month': month,
-//             'year': year
-//           }
-//         }, {
-//           '$group': {
-//             '_id': {
-//               '$dateToString': {
-//                 'format': '%Y-%m-%d',
-//                 'date': '$date'
-//               }
-//             },
-//             'newUser': {
-//               '$sum': 1
-//             }
-//           }
-//         }, {
-//           '$sort': {
-//             '_id': 1
-//           }
-//         }
-//       ]
-//     )
+exports.getNewUser = async (req, res) => {
+  try {
+    const { month, year } = req.body;
 
-//     let listUser = [];
-//     var day = new Date(year, month, 0).getDate();
+    const newUser = await User.aggregate([
+      {
+        $project: {
+          date: '$createdAt',
+          month: {
+            $month: '$createdAt',
+          },
+          year: {
+            $year: '$createdAt',
+          },
+        },
+      },
+      {
+        $match: {
+          month: month,
+          year: year,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$date',
+            },
+          },
+          newUser: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: 1,
+        },
+      },
+    ]);
 
-//     if (newUser.length == day) {
-//       for (var i = 0; i < newUser.length; i++) {
-//         listUser.push(newUser[i].newUser);
-//       }
-//     } else {
-//       for (var i = 1, j = 0; i <= day; i++) {
-//         if (j == newUser.length) {
-//           listUser.push(0);
-//         } else if (
-//           newUser[j]._id ==
-//           (i < 10 ? `${year}-${month}-0${i}` : `${year}-${month}-${i}`)
-//         ) {
-//           listUser.push(newUser[j].newUser);
-//           j++;
-//         } else {
-//           listUser.push(0);
-//         }
-//       }
-//     }
+    let listUser = [];
+    var day = new Date(year, month, 0).getDate();
 
-//     res.status(200).json(listUser);
-//   } catch (err) {
-//     res.status(500).json({ error: err });
-//   }
-// };
+    if (newUser.length == day) {
+      for (var ii = 0; ii < newUser.length; ii++) {
+        listUser.push(newUser[ii].newUser);
+      }
+    } else {
+      for (var i = 1, j = 0; i <= day; i++) {
+        if (j == newUser.length) {
+          listUser.push(0);
+        } else if (
+          newUser[j]._id ==
+          (i < 10
+            ? month < 10
+              ? `${year}-0${month}-0${i}`
+              : `${year}-${month}-0${i}`
+            : month < 10
+            ? `${year}-0${month}-${i}`
+            : `${year}-${month}-${i}`)
+        ) {
+          listUser.push(newUser[j].newUser);
+          j++;
+        } else {
+          listUser.push(0);
+        }
+      }
+    }
+
+    res.status(200).json(listUser);
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
+};
 
 exports.signup = async (req, res) => {
   User.findOne({ email: req.body.email }).exec((error, user) => {
@@ -87,7 +95,9 @@ exports.signup = async (req, res) => {
   //     });
   // });
 
-  const { firstName, lastName, email, password, username, contactNumber } = req.body;
+
+  const { firstName, lastName, email, password, username, contactNumber, role } = req.body;
+
   const hash_password = await bcrypt.hash(password, 10);
   const _user = new User({
     firstName,
@@ -96,6 +106,7 @@ exports.signup = async (req, res) => {
     hash_password,
     username,
     contactNumber,
+    role,
   });
 
   const token = jwt.sign({ _id: _user.id }, process.env.JWT_SECRET, {
@@ -110,8 +121,10 @@ exports.signup = async (req, res) => {
     if (data) {
       return res.status(201).json({
         message: 'Create successfully',
+
         user: _user,
         token,
+
       });
     }
   });
