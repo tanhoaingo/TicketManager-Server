@@ -26,7 +26,7 @@ const CusTicketSchema = new mongoose.Schema(
     },
     isCancel: {
       type: Boolean,
-      required: true,
+      required: false,
       default: false,
     },
   },

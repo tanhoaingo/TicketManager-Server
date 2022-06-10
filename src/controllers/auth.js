@@ -95,7 +95,9 @@ exports.signup = async (req, res) => {
   //     });
   // });
 
+
   const { firstName, lastName, email, password, username, contactNumber, role } = req.body;
+
   const hash_password = await bcrypt.hash(password, 10);
   const _user = new User({
     firstName,
@@ -107,6 +109,9 @@ exports.signup = async (req, res) => {
     role,
   });
 
+  const token = jwt.sign({ _id: _user.id }, process.env.JWT_SECRET, {
+    expiresIn: '1h',
+  });
   _user.save((error, data) => {
     if (error) {
       return res.status(400).json({
@@ -116,7 +121,10 @@ exports.signup = async (req, res) => {
     if (data) {
       return res.status(201).json({
         message: 'Create successfully',
-        _user,
+
+        user: _user,
+        token,
+
       });
     }
   });
@@ -143,7 +151,8 @@ exports.signin = (req, res) => {
   User.findOne({ email: req.body.email }).exec((error, user) => {
     if (error) return res.status(400).json({ error });
     if (user) {
-      if (user.authenticate(req.body.password)) {
+      const checkAuthen = bcrypt.compareSync(req.body.password, user.hash_password);
+      if (checkAuthen) {
         const token = jwt.sign({ _id: user.id }, process.env.JWT_SECRET, {
           expiresIn: '1h',
         });

@@ -1,12 +1,15 @@
 const WagonTicket = require('../models/wagonTicket');
+const Wagon = require('../models/wagons');
 const Trip = require('../models/trip.js');
 const Ticket = require('../models/ticket.js');
 const Seat = require('../models/seat.js');
+
 const user = require('../models/user');
 const Vehicle = require('../models/vehicle');
 const Wagons = require('../models/wagons');
 const cusTicket = require('../models/cusTicket');
 const Enterprise = require('../models/enterprise');
+
 
 exports.create = async (req, res) => {
   const newWagonTicket = new WagonTicket(req.body);
@@ -62,23 +65,24 @@ exports.getAllByIdTrip = async (req, res) => {
   try {
     let payload = [];
 
+    const { idTrip } = req.body;
+
     const wagonTickets = await WagonTicket.find();
 
-    const { idTrip } = req.body;
+    const wagon = await Wagon.find();
 
     const trip = await Trip.findOne({ _id: idTrip });
 
     const ticket = await Ticket.findOne({ idTrip: trip._id });
 
     const seats = await Seat.find();
+    const vehicals = await Vehical.find();
 
     const cusTickets = await cusTicket.find();
 
     if (ticket) {
       const filteredWagonTickets = wagonTickets.filter(wagonTickets => {
-        let isValid = true;
-        isValid = isValid && wagonTickets.idTicket.equals(ticket._id);
-        return isValid;
+        return wagonTickets.idTicket.equals(ticket._id);
       });
 
       filteredWagonTickets.map(wagonTicket => {
@@ -91,8 +95,17 @@ exports.getAllByIdTrip = async (req, res) => {
             }
           }
         });
+        let wagonType = '';
+        for (let w of wagon) {
+          if (wagonTicket.wagon.equals(w._id)) wagonType = w.idWagon;
+        }
 
-        payload.push({ ...wagonTicket._doc, filteredSeats });
+        let currentVehical = '';
+        for (let v of vehicals) {
+          if (trip.idVehicle.equals(v._id)) currentVehical = v.idTrain;
+        }
+
+        payload.push({ ...wagonTicket._doc, filteredSeats, wagonType, currentVehical });
       });
       res.status(200).json(payload);
     } else {
