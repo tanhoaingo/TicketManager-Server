@@ -3,6 +3,7 @@ const Wagon = require('../models/wagons');
 const Trip = require('../models/trip.js');
 const Ticket = require('../models/ticket.js');
 const Seat = require('../models/seat.js');
+const Vehical = require('../models/vehicle');
 
 exports.create = async (req, res) => {
   const newWagonTicket = new WagonTicket(req.body);
@@ -27,6 +28,7 @@ exports.getAll = async (req, res) => {
 exports.getAllByIdTrip = async (req, res) => {
   try {
     let payload = [];
+
     const { idTrip } = req.body;
 
     const wagonTickets = await WagonTicket.find();
@@ -38,6 +40,7 @@ exports.getAllByIdTrip = async (req, res) => {
     const ticket = await Ticket.findOne({ idTrip: trip._id });
 
     const seats = await Seat.find();
+    const vehicals = await Vehical.find();
 
     if (ticket) {
       const filteredWagonTickets = wagonTickets.filter(wagonTickets => {
@@ -56,7 +59,12 @@ exports.getAllByIdTrip = async (req, res) => {
           if (wagonTicket.wagon.equals(w._id)) wagonType = w.idWagon;
         }
 
-        payload.push({ ...wagonTicket._doc, filteredSeats, wagonType });
+        let currentVehical = '';
+        for (let v of vehicals) {
+          if (trip.idVehicle.equals(v._id)) currentVehical = v.idTrain;
+        }
+
+        payload.push({ ...wagonTicket._doc, filteredSeats, wagonType, currentVehical });
       });
       res.status(200).json(payload);
     } else {
