@@ -10,7 +10,6 @@ const Wagons = require('../models/wagons');
 const cusTicket = require('../models/cusTicket');
 const Enterprise = require('../models/enterprise');
 
-
 exports.create = async (req, res) => {
   const newWagonTicket = new WagonTicket(req.body);
 
@@ -76,7 +75,7 @@ exports.getAllByIdTrip = async (req, res) => {
     const ticket = await Ticket.findOne({ idTrip: trip._id });
 
     const seats = await Seat.find();
-    const vehicals = await Vehical.find();
+    const vehicals = await Vehicle.find();
 
     const cusTickets = await cusTicket.find();
 
