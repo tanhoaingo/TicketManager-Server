@@ -85,14 +85,23 @@ exports.fetchAll = async (req, res) => {
     const rule = await Rule.findOne();
 
     const curHour = new Date().getHours();
+    const curDay = new Date().getDay();
+    const curMonth = new Date().getMonth();
+    const curYear = new Date().getYear();
 
     const filteredRoutes = routes.filter(route => {
       let isValid = true;
-      isValid =
-        isValid &&
-        (route.endLocation - route.startLocation) * (endIndex - startIndex) > 0 &&
-        route.startTime - curHour > rule.book;
-      return isValid;
+      if (`${curYear}/${curMonth}/${curDay}` === startDate) {
+        isValid =
+          isValid &&
+          (route.endLocation - route.startLocation) * (endIndex - startIndex) > 0 &&
+          route.startTime - curHour > rule.book;
+        return isValid;
+      } else {
+        isValid =
+          isValid && (route.endLocation - route.startLocation) * (endIndex - startIndex) > 0;
+        return isValid;
+      }
     });
 
     const filteredTrips = trips.filter(trip => {
