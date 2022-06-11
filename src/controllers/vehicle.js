@@ -21,7 +21,7 @@ exports.getById = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const { idEnterprise, idTrain, numPlate } = req.body;
+    const { idEnterprise, idTrain, numPlate, typeOfSpeed } = req.body;
 
     if (idTrain === 'SE01') {
       const newVehicle = new Vehicle({
@@ -29,7 +29,7 @@ exports.create = async (req, res) => {
         idTrain,
         numPlate,
         wagons: ['nmdh', 'nmdh', 'nk6dh', 'nk6dh', 'nk4dh', 'nk4dh', 'nk4dh', 'nk4dh', 'nk6dh'],
-        typeOfSpeed: 'Fast',
+        typeOfSpeed,
       });
       const saved = await newVehicle.save();
       res.status(200).json(saved);
@@ -39,7 +39,7 @@ exports.create = async (req, res) => {
         idTrain,
         numPlate,
         wagons: ['nmdh', 'nmdh', 'nk6dh', 'nk6dh', 'nk4dh', 'nk4dh', 'nk4dh', 'nk4dh', 'nk6dh'],
-        typeOfSpeed: 'Fast',
+        typeOfSpeed,
       });
       const saved = await newVehicle.save();
       res.status(200).json(saved);
@@ -60,7 +60,7 @@ exports.create = async (req, res) => {
           'nk4dh',
           'nk4dh',
         ],
-        typeOfSpeed: 'Slow',
+        typeOfSpeed,
       });
       const saved = await newVehicle.save();
       res.status(200).json(saved);
@@ -70,7 +70,7 @@ exports.create = async (req, res) => {
         idTrain,
         numPlate,
         wagons: ['nmdh', 'nmdh', 'nk6dh', 'nk6dh', 'nk6dh', 'nk4dh', 'nk4dh', 'nk4dh'],
-        typeOfSpeed: 'Slow',
+        typeOfSpeed,
       });
       const saved = await newVehicle.save();
       res.status(200).json(saved);
@@ -80,7 +80,7 @@ exports.create = async (req, res) => {
         idTrain,
         numPlate,
         wagons: ['nmdh', 'nmdh', 'nk6dh', 'nk6dh', 'nk4dh', 'nk4dh', 'nk4dh', 'nk4dh', 'nk4dh'],
-        typeOfSpeed: 'Fast',
+        typeOfSpeed,
       });
       const saved = await newVehicle.save();
       res.status(200).json(saved);
@@ -90,7 +90,7 @@ exports.create = async (req, res) => {
         idTrain,
         numPlate,
         wagons: ['nmdh', 'nmdh', 'nk6dh', 'nk6dh', 'nk4dh', 'nk4dh', 'nk4dh', 'nk4dh', 'nk6dh'],
-        typeOfSpeed: 'Fast',
+        typeOfSpeed,
       });
       const saved = await newVehicle.save();
       res.status(200).json(saved);
@@ -100,7 +100,7 @@ exports.create = async (req, res) => {
         idTrain,
         numPlate,
         wagons: ['nmdh', 'nmdh', 'nmdh', 'nmdh', 'nk6dh', 'nk6dh', 'nk6dh', 'nk4dh', 'nk4dh'],
-        typeOfSpeed: 'Slow',
+        typeOfSpeed,
       });
       const saved = await newVehicle.save();
       res.status(200).json(saved);
@@ -110,7 +110,7 @@ exports.create = async (req, res) => {
         idTrain,
         numPlate,
         wagons: ['nmdh', 'nmdh', 'nk6dh', 'nk6dh', 'nk6dh', 'nk4dh', 'nk4dh', 'nk4dh'],
-        typeOfSpeed: 'Slow',
+        typeOfSpeed,
       });
       const saved = await newVehicle.save();
       res.status(200).json(saved);
