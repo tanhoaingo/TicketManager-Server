@@ -51,8 +51,7 @@ const EnterpriseController = {
         .find({
           idEnterprise: enterprise._id,
         })
-        .populate('idUser')
-        .populate('idVehicle');
+        .populate('idUser');
       let listSteersman = [];
       // var users = await user.find();
       for (var i = 0; i < steersmans.length; i++) {

@@ -7,6 +7,7 @@ const Vehicle = require('../models/vehicle');
 const Wagons = require('../models/wagons');
 const cusTicket = require('../models/cusTicket');
 const Enterprise = require('../models/enterprise');
+const Rule = require('../models/rule');
 
 exports.create = async (req, res) => {
   const newWagonTicket = new WagonTicket(req.body);
@@ -19,6 +20,12 @@ exports.create = async (req, res) => {
   }
 };
 
+const PriceOfWagonTicket = (rule, typeOfWagon, price) => {
+  if (typeOfWagon === 'nmdh') return price * rule.coefficientNMDH;
+  if (typeOfWagon === 'nk4dh') return price * rule.coefficientNK4DH;
+  if (typeOfWagon === 'nk6dh') return price * rule.coefficientNK6DH;
+};
+
 exports.createAllWagons = async (req, res) => {
   try {
     let payload = [];
@@ -27,6 +34,7 @@ exports.createAllWagons = async (req, res) => {
     const ticket = await Ticket.findOne({ idTrip: idTrip });
     const vehicle = await Vehicle.findOne({ _id: trip.idVehicle });
     const wagons = await Wagons.find();
+    const rule = await Rule.findOne();
 
     for (let i in vehicle.wagons) {
       for (let w of wagons) {
@@ -35,7 +43,7 @@ exports.createAllWagons = async (req, res) => {
             idTicket: ticket._id,
             numOfWagon: i,
             wagon: w._id,
-            price: req.body.price,
+            price: PriceOfWagonTicket(rule, w.idWagon, req.body.price),
           });
           const saved = await newWagonTicket.save();
           payload.push(saved);

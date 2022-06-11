@@ -5,7 +5,7 @@ const {
   // Steersman,
   // Profile,
   Trip,
-} = require("../models/index");
+} = require('../models/index');
 
 exports.getAll = async (req, res) => {
   try {
@@ -53,7 +53,7 @@ exports.update = async (req, res) => {
 exports.deleteById = async (req, res) => {
   try {
     await Route.findByIdAndDelete(req.params.id);
-    res.status(200).json("Has been deleted");
+    res.status(200).json('Has been deleted');
   } catch (err) {
     res.status(500).json(err);
   }
@@ -61,9 +61,10 @@ exports.deleteById = async (req, res) => {
 
 exports.getInforbyID = async (req, res) => {
   try {
-    const route = await Route.findById(req.params.id).populate("idEnterprise");
+    const route = await Route.findById(req.params.id).populate('idEnterprise');
     const trip = await Trip.find({ idRoute: route._id })
-      .populate("idVehicle")
+      .populate('idVehicle')
+      .populate('idSteersman')
       .exec();
     res.status(200).json({
       route: route,
