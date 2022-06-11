@@ -64,7 +64,7 @@ exports.getAllByIdTrip = async (req, res) => {
 
     const wagonTickets = await WagonTicket.find();
 
-    const { idTrip } = req.body;
+    const { idTrip, startIndex, endIndex } = req.body;
 
     const trip = await Trip.findOne({ _id: idTrip });
 
@@ -84,10 +84,44 @@ exports.getAllByIdTrip = async (req, res) => {
       filteredWagonTickets.map(wagonTicket => {
         const filteredSeats = seats.filter(seat => {
           for (let c of cusTickets) {
-            if (c.idSeat.equals(seat._id)) {
-              let isValid = true;
-              isValid = isValid && seat.idWagonTicket.equals(wagonTicket._id) && !c.isCancel;
-              return isValid;
+            if (endIndex - startIndex > 0) {
+              if (c.idSeat.equals(seat._id)) {
+                let isValid = true;
+                if (seat.startIndex < startIndex) {
+                  isValid =
+                    isValid &&
+                    seat.idWagonTicket.equals(wagonTicket._id) &&
+                    !c.isCancel &&
+                    seat.endIndex > startIndex;
+                  return isValid;
+                } else if (seat.startIndex > startIndex) {
+                  isValid =
+                    isValid &&
+                    seat.idWagonTicket.equals(wagonTicket._id) &&
+                    !c.isCancel &&
+                    seat.startIndex < endIndex;
+                  return isValid;
+                }
+              }
+            } else if (endIndex - startIndex < 0) {
+              if (c.idSeat.equals(seat._id)) {
+                let isValid = true;
+                if (seat.startIndex > startIndex) {
+                  isValid =
+                    isValid &&
+                    seat.idWagonTicket.equals(wagonTicket._id) &&
+                    !c.isCancel &&
+                    seat.endIndex < startIndex;
+                  return isValid;
+                } else if (seat.startIndex < startIndex) {
+                  isValid =
+                    isValid &&
+                    seat.idWagonTicket.equals(wagonTicket._id) &&
+                    !c.isCancel &&
+                    seat.startIndex > endIndex;
+                  return isValid;
+                }
+              }
             }
           }
         });
