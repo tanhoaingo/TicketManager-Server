@@ -346,7 +346,7 @@ exports.fetchUserTicket = async (req, res) => {
           }
         }
       });
-      console.log(resultTicketCancel);
+
       return res.json({
         success: true,
         hadTrip: true,
@@ -444,3 +444,90 @@ exports.updatePassword = async (req, res) => {
 //     res.status(500).json(err);
 //   }
 // };
+
+exports.detailTicket = async (req, res) => {
+  const { phoneNumber, bookingCode } = req.body;
+
+  if (!phoneNumber || !bookingCode) {
+    return res.json({
+      success: false,
+      message: 'Please fill all filter',
+    });
+  }
+
+  const userBooking = await UserBooking.findOne({
+    phoneNumber: phoneNumber,
+    code: bookingCode,
+  });
+
+  if (!userBooking) {
+    return res.json({
+      success: true,
+      message: 'No result',
+    });
+  }
+
+  const invoice = await Invoice.findOne({ _id: userBooking.idInvoice });
+
+  const ticket = await Ticket.findOne({ _id: invoice?.idTicket });
+
+  const trip = await Trip.findOne({ _id: ticket?.idTrip });
+
+  const route = await Route.findOne({ _id: trip?.idRoute });
+
+  const enterprise = await EnterPrise.findOne({ _id: route?.idEnterprise });
+
+  const vehicle = await Vehicle.findOne({ _id: trip?.idVehicle });
+
+  const cusTickets = await CusTicket.find({ idInvoice: invoice?._id });
+
+  let seatInfors = [];
+
+  let cityNameStart = '';
+
+  let cityNameEnd = '';
+
+  for (const cusTicket of cusTickets) {
+    const seat = await Seat.findOne({ _id: cusTicket?.idSeat });
+
+    const wagonTicket = await WagonTicket.findOne({ _id: seat.idWagonTicket });
+
+    const price = wagonTicket?.price * (seat.endIndex - seat.startIndex);
+
+    cityNameStart = (await City.findOne({ indexCity: seat?.startIndex }))?.name;
+
+    cityNameEnd = (await City.findOne({ indexCity: seat?.endIndex }))?.name;
+
+    seatInfors.push({
+      cusName: cusTicket?.cusName,
+      cusId: cusTicket?.cusID,
+      cusAge: cusTicket?.cusAge,
+      numOfSeat: seat?.numOfSeat,
+      numOfWagon: wagonTicket?.numOfWagon,
+      price: price,
+    });
+  }
+
+  const { email, fullname, identifyNumber } = userBooking;
+
+  return res.json({
+    success: true,
+    userBooking: {
+      bookingCode,
+      fullname,
+      identifyNumber,
+      email,
+      phoneNumber,
+      payment: invoice?.payment,
+      isPay: invoice?.isPay,
+    },
+    route: {
+      idTrain: vehicle?.idTrain,
+      enterpriseName: enterprise?.name,
+      startDate: trip?.startDate,
+      cityNameStart,
+      cityNameEnd,
+    },
+    seats: seatInfors,
+  });
+};

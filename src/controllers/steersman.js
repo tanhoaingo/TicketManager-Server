@@ -5,7 +5,7 @@ const profile = require('../models/profile');
 
 exports.getAll = async (req, res) => {
   try {
-    const steersman = await Steersman.find().populate('idVehicle').populate('idUser');
+    const steersman = await Steersman.find().populate('idUser');
     res.status(200).json(steersman);
   } catch (err) {
     res.status(500).json({ error: err });
@@ -47,11 +47,9 @@ exports.create = async (req, res) => {
     });
     _profile.save();
 
-    const { position, idVehicle, idEnterprise } = req.body;
+    const { idEnterprise } = req.body;
     const newSteersman = new Steersman({
       idUser: _user._id,
-      position,
-      idVehicle,
       idEnterprise,
     });
 
@@ -68,9 +66,7 @@ exports.update = async (req, res) => {
     const updated = await Steersman.findByIdAndUpdate(
       req.params.id,
       {
-        position: req.body.position,
         idEnterprise: req.body.idEnterprise,
-        idVehicle: req.body.idVehicle ? req.body.idVehicle : null,
         isActive: req.body.isActive,
       },
       { new: true }
