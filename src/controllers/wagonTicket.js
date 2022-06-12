@@ -6,7 +6,6 @@ const Seat = require('../models/seat.js');
 
 const user = require('../models/user');
 const Vehicle = require('../models/vehicle');
-const Wagon = require('../models/wagons');
 const cusTicket = require('../models/cusTicket');
 const Enterprise = require('../models/enterprise');
 const Rule = require('../models/rule');
