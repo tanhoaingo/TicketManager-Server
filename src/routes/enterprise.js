@@ -16,6 +16,8 @@ app.use(express.static('public'));
 
 router.get('/', EnterpriseController.getAll);
 
+router.get('/getAllName', EnterpriseController.getAllName);
+
 router.post('/', EnterpriseController.create);
 
 router.get('/:id', EnterpriseController.getInforbyID);
