@@ -5,6 +5,7 @@ const {
   updatePassword,
   fetchUserTicket,
   test,
+  detailTicket,
 } = require('../controllers/user');
 
 const router = require('express').Router();
@@ -18,5 +19,7 @@ router.post('/fetchUserTicket', fetchUserTicket);
 router.get('/test', test);
 
 router.get('/', getAll);
+
+router.post('/detailTicket', detailTicket);
 
 module.exports = router;

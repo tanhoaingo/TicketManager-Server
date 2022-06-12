@@ -13,6 +13,11 @@ exports.create = async (req, res) => {
 
   try {
     const newUserBooking = new UserBooking(data);
+
+    const code = `VN${data.identifyNumber.slice(0, 3)}${newUserBooking._id.slice(0, 3)}`;
+
+    newUserBooking.code = code;
+
     const saved = await newUserBooking.save();
 
     if (saved) {
