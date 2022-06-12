@@ -44,56 +44,6 @@ exports.getAll = async (req, res) => {
 
     const userbook = await cusTicket.aggregate([
       {
-        $lookup: {
-          from: 'seats',
-          localField: 'idSeat',
-          foreignField: '_id',
-          as: 'result',
-        },
-      },
-      {
-        $replaceRoot: {
-          newRoot: {
-            $mergeObjects: [
-              {
-                $arrayElemAt: ['$result', 0],
-              },
-              '$$ROOT',
-            ],
-          },
-        },
-      },
-      {
-        $project: {
-          result: 0,
-        },
-      },
-      {
-        $lookup: {
-          from: 'wagontickets',
-          localField: 'idWagonTicket',
-          foreignField: '_id',
-          as: 'result',
-        },
-      },
-      {
-        $replaceRoot: {
-          newRoot: {
-            $mergeObjects: [
-              {
-                $arrayElemAt: ['$result', 0],
-              },
-              '$$ROOT',
-            ],
-          },
-        },
-      },
-      {
-        $project: {
-          result: 0,
-        },
-      },
-      {
         $match: {
           isCancel: false,
         },
@@ -102,7 +52,7 @@ exports.getAll = async (req, res) => {
         $group: {
           _id: '$idInvoice',
           totalPrice: {
-            $sum: '$price',
+            $sum: '$cusPriceTicket',
           },
           totalTicket: {
             $sum: 1,
@@ -119,6 +69,111 @@ exports.getAll = async (req, res) => {
         let temp = {};
         for (let u of userbook) {
           if (r.idInvoice.equals(u._id)) {
+            temp.totalPrice = u.totalPrice;
+            temp.totalTicket = u.totalTicket;
+          }
+        }
+        temp.stt = c.toString();
+        temp.fullname = r.fullname;
+        temp.email = r.email;
+        temp.phoneNumber = r.phoneNumber.toString();
+        temp.identifyNumber = r.identifyNumber;
+        temp.payment = r.payment;
+        if (r.isPay) temp.isPay = 'Đã thanh toán';
+        else temp.isPay = 'Chưa thanh toán';
+        payload.push(temp);
+        c++;
+      }
+    }
+
+    res.status(200).json(payload);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+};
+
+exports.getAllbyDay = async (req, res) => {
+  try {
+    const result = await Invoice.aggregate([
+      {
+        $lookup: {
+          from: 'userbookings',
+          localField: '_id',
+          foreignField: 'idInvoice',
+          as: 'result',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ['$result', 0],
+              },
+              '$$ROOT',
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $project: {
+          date: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$createdAt',
+            },
+          },
+          idInvoice: '$idInvoice',
+          fullname: '$fullname',
+          email: '$email',
+          phoneNumber: '$phoneNumber',
+          identifyNumber: '$identifyNumber',
+          payment: '$payment',
+          isPay: '$isPay',
+        },
+      },
+    ]);
+
+    const userbook = await cusTicket.aggregate([
+      {
+        $match: {
+          isCancel: false,
+        },
+      },
+      {
+        $group: {
+          _id: '$idInvoice',
+          totalPrice: {
+            $sum: '$cusPriceTicket',
+          },
+          totalTicket: {
+            $sum: 1,
+          },
+        },
+      },
+    ]);
+
+    let payload = [];
+    let c = 1;
+
+    var dt = new Date();
+
+    dt.getFullYear() + '/' + (dt.getMonth() + 1) + '/' + dt.getDate();
+
+    if (result.length > 0) {
+      for (let r of result) {
+        let temp = {};
+        for (let u of userbook) {
+          if (
+            r.idInvoice.equals(u._id) &&
+            r.date === dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate()
+          ) {
             temp.totalPrice = u.totalPrice;
             temp.totalTicket = u.totalTicket;
           }

@@ -25,6 +25,9 @@ const TripSchema = new mongoose.Schema(
       ref: 'Steersman',
       required: true,
     },
+    fixed_price: {
+      type: Number,
+    },
   },
   {
     timestamps: true,

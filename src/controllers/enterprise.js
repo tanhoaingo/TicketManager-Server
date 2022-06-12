@@ -3,6 +3,22 @@ const Profile = require('../models/profile');
 const steersman = require('../models/steersman');
 
 const EnterpriseController = {
+  getAllName: async (req, res) => {
+    try {
+      const enterpriseList = await Enterprise.find();
+
+      var data = [];
+
+      for (let i = 0; i < enterpriseList.length; i++) {
+        data.push(enterpriseList[i].name);
+      }
+
+      res.status(200).json(data);
+    } catch (err) {
+      res.status(500).json({ error: err });
+    }
+  },
+
   getAll: async (req, res) => {
     try {
       const enterprises = await Enterprise.find();

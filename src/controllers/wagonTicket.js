@@ -6,7 +6,7 @@ const Seat = require('../models/seat.js');
 
 const user = require('../models/user');
 const Vehicle = require('../models/vehicle');
-const Wagons = require('../models/wagons');
+const Wagon = require('../models/wagons');
 const cusTicket = require('../models/cusTicket');
 const Enterprise = require('../models/enterprise');
 const Rule = require('../models/rule');
@@ -35,7 +35,7 @@ exports.createAllWagons = async (req, res) => {
     const trip = await Trip.findOne({ _id: idTrip });
     const ticket = await Ticket.findOne({ idTrip: idTrip });
     const vehicle = await Vehicle.findOne({ _id: trip.idVehicle });
-    const wagons = await Wagons.find();
+    const wagons = await Wagon.find();
     const rule = await Rule.findOne();
 
     for (let i in vehicle.wagons) {
@@ -61,7 +61,7 @@ exports.createAllWagons = async (req, res) => {
 
 exports.getAll = async (req, res) => {
   try {
-    const wagonTicket = await WagonTicket.find();
+    const wagonTicket = await WagonTicket.find().populate('idTicket');
     res.status(200).json(wagonTicket);
   } catch (err) {
     res.status(500).json({ error: err });
@@ -179,6 +179,59 @@ exports.getSeatInWagon = async (req, res) => {
   }
 };
 
+exports.update = async (req, res) => {
+  try {
+    const { idTrip, fixed_price } = req.body;
+    const ticket = await Ticket.findOne({ idTrip: idTrip });
+    const wagonTickets = await WagonTicket.find();
+    const wagons = await Wagon.find();
+    const rule = await Rule.findOne();
+
+    let result = [];
+
+    for (let w of wagonTickets) {
+      if (w.idTicket.equals(ticket._id)) {
+        for (let wagon of wagons) {
+          if (wagon._id.equals(w.wagon)) {
+            if (wagon.idWagon === 'nmdh') {
+              const updated = await WagonTicket.findByIdAndUpdate(
+                w._id,
+                {
+                  price: fixed_price * rule.coefficientNMDH,
+                },
+                { new: true }
+              );
+              result = result.concat(updated);
+            } else if (wagon.idWagon === 'nk4dh') {
+              const updated = await WagonTicket.findByIdAndUpdate(
+                w._id,
+                {
+                  price: fixed_price * rule.coefficientNK4DH,
+                },
+                { new: true }
+              );
+              result = result.concat(updated);
+            } else if (wagon.idWagon === 'nk6dh') {
+              const updated = await WagonTicket.findByIdAndUpdate(
+                w._id,
+                {
+                  price: fixed_price * rule.coefficientNK6DH,
+                },
+                { new: true }
+              );
+              result = result.concat(updated);
+            }
+          }
+        }
+      }
+    }
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json(err);
+    console.log(err);
+  }
+};
+
 exports.getTotalTicket_Sale = async (req, res) => {
   try {
     const { month, year } = req.body;
@@ -248,7 +301,7 @@ exports.getTotalTicket_Sale = async (req, res) => {
           year: {
             $year: '$createdAt',
           },
-          price: '$price',
+          price: '$cusPriceTicket',
         },
       },
       {
@@ -340,7 +393,7 @@ exports.getTotalTicket_Sale = async (req, res) => {
           year: {
             $year: '$createdAt',
           },
-          price: '$price',
+          price: '$cusPriceTicket',
         },
       },
       {
@@ -493,7 +546,7 @@ exports.getDateByMonthYear = async (req, res) => {
           year: {
             $year: '$createdAt',
           },
-          price: '$price',
+          price: '$cusPriceTicket',
         },
       },
       {
@@ -728,7 +781,7 @@ exports.getCurrentByEnterprisesList = async (req, res) => {
             $sum: 1,
           },
           totalSale: {
-            $sum: '$price',
+            $sum: '$cusPriceTicket',
           },
         },
       },
@@ -961,7 +1014,7 @@ exports.getCurrentByEnterprises = async (req, res) => {
             $sum: 1,
           },
           totalSale: {
-            $sum: '$price',
+            $sum: '$cusPriceTicket',
           },
         },
       },
@@ -1161,7 +1214,7 @@ exports.getCurrentDate = async (req, res) => {
               date: '$createdAt',
             },
           },
-          price: '$price',
+          price: '$cusPriceTicket',
         },
       },
       {
@@ -1407,7 +1460,7 @@ exports.getReportEnterprises = async (req, res) => {
           year: {
             $year: '$createdAt',
           },
-          price: '$price',
+          price: '$cusPriceTicket',
         },
       },
       {

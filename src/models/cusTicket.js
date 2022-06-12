@@ -18,9 +18,17 @@ const CusTicketSchema = new mongoose.Schema(
     },
     cusID: {
       type: Number,
-      required: true,
+      default: 0,
     },
     cusAge: {
+      type: Number,
+      default: 0,
+    },
+    cusTypeTicket: {
+      type: String,
+      required: true,
+    },
+    cusPriceTicket: {
       type: Number,
       required: true,
     },

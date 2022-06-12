@@ -10,11 +10,14 @@ const {
   getCurrentDate,
   getCurrentByEnterprisesList,
   getCurrentByEnterprises,
+  update,
 } = require('../controllers/wagonTicket.js');
 
 const router = require('express').Router();
 
 router.post('/create', create);
+
+router.put('/update', update);
 
 router.post('/createAllWagons', createAllWagons);
 
