@@ -85,7 +85,6 @@ exports.fetchAll = async (req, res) => {
     const wagons = await Wagon.find();
     const cities = await City.find();
     const rule = await Rule.findOne();
-
     const curHour = new Date().getHours();
     const curDay = new Date().getDay();
     const curMonth = new Date().getMonth();
@@ -108,12 +107,12 @@ exports.fetchAll = async (req, res) => {
 
     const filteredTrips = trips.filter(trip => {
       for (let route of filteredRoutes) {
-        let isValid = true;
-        isValid =
-          isValid &&
-          trip.startDate == new Date(startDate).toString() &&
-          trip.idRoute.toString() == route._id.toString();
-        return isValid;
+        if (trip.idRoute.toString() == route._id.toString()) {
+          let isValid = true;
+          isValid = isValid && trip.startDate == new Date(startDate).toString();
+
+          return isValid;
+        }
       }
     });
 
