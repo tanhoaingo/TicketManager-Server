@@ -83,13 +83,8 @@ exports.fetchAll = async (req, res) => {
     const wagonTickets = await WagonTicket.find();
     const seats = await Seat.find();
     const wagons = await Wagon.find();
-
-    console.log('test');
     const cities = await City.find();
     const rule = await Rule.findOne();
-
-    console.log('dumb 2');
-
     const curHour = new Date().getHours();
     const curDay = new Date().getDay();
     const curMonth = new Date().getMonth();
