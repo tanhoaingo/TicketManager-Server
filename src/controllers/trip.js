@@ -8,6 +8,8 @@ const Seat = require('../models/seat.js');
 const Wagon = require('../models/wagons.js');
 const City = require('../models/city.js');
 const Rule = require('../models/rule.js');
+const CusTicket = require('../models/cusTicket.js');
+const UserBooking = require('../models/userBooking');
 // const UserTicket = require("../models/user_ticket");
 // const OfflineTicket = require("../models/offline_phone_ticket");
 // const Rules = requfire("../models/rule");
@@ -215,11 +217,132 @@ exports.deleteById = async (req, res) => {
   }
 };
 
+exports.getInfoById = async (req, res) => {
+  try {
+    const trip = await Trip.findById(req.params.id)
+      .populate({
+        path: 'idRoute',
+        populate: 'idEnterprise',
+      })
+      .populate('idSteersman')
+      .populate('idVehicle');
+
+    const ticket = await Ticket.findOne({ idTrip: trip._id });
+    const wagonTicket = await WagonTicket.find({ idTicket: ticket._id });
+
+    let arrWagonTicket = [];
+    for (let w of wagonTicket) {
+      let arrSeat = [];
+      let seats = await Seat.find({ idWagonTicket: w._id });
+      for (let seat of seats) {
+        let cusTicket = await CusTicket.findOne({ idSeat: seat._id }).populate('idInvoice');
+        let userBooking = await UserBooking.findOne({ idInvoice: cusTicket.idInvoice._id });
+        arrSeat.push({
+          cusTicket,
+          seat,
+          userBooking,
+        });
+      }
+      arrWagonTicket.push({
+        wagonTicket: await w.populate('wagon'),
+        seats: arrSeat,
+      });
+    }
+
+    if (trip) {
+      return res.status(200).json({
+        success: true,
+        tripDetail: trip,
+        wagon: wagonTicket,
+        wagonTickets: arrWagonTicket,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error,
+    });
+  }
+};
+exports.getInfoByIdAndLocation = async (req, res) => {
+  try {
+    const { startIndex, endIndex } = req.body;
+
+    const trip = await Trip.findById(req.params.id)
+      .populate({
+        path: 'idRoute',
+        populate: 'idEnterprise',
+      })
+      .populate('idSteersman')
+      .populate('idVehicle');
+
+    if (startIndex === endIndex) {
+      return res.status(200).json({
+        success: false,
+        message: 'false input',
+      });
+    }
+
+    const ticket = await Ticket.findOne({ idTrip: trip._id });
+    const wagonTicket = await WagonTicket.find({ idTicket: ticket._id });
+
+    let arrWagonTicket = [];
+    for (let w of wagonTicket) {
+      let arrSeat = [];
+      let seats = await Seat.find({ idWagonTicket: w._id });
+      for (let seat of seats) {
+        let cusTicket = await CusTicket.findOne({ idSeat: seat._id }).populate('idInvoice');
+        let userBooking = await UserBooking.findOne({ idInvoice: cusTicket.idInvoice._id });
+        if (startIndex < endIndex) {
+          const checkDontConflix =
+            (seat.startIndex < startIndex && seat.endIndex <= startIndex) ||
+            (seat.endIndex > endIndex && seat.startIndex >= endIndex);
+          if (!checkDontConflix) {
+            arrSeat.push({
+              cusTicket,
+              seat,
+              userBooking,
+            });
+          }
+        } else {
+          if (
+            (seat.startIndex > startIndex && seat.endIndex >= startIndex) ||
+            (seat.endIndex < endIndex && seat.startIndex <= endIndex)
+          ) {
+            arrSeat.push({
+              cusTicket,
+              seat,
+              userBooking,
+            });
+          }
+        }
+      }
+      arrWagonTicket.push({
+        wagonTicket: await w.populate('wagon'),
+        seats: arrSeat,
+      });
+    }
+
+    if (trip) {
+      return res.status(200).json({
+        success: true,
+        tripDetail: trip,
+        wagon: wagonTicket,
+        wagonTickets: arrWagonTicket,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error,
+    });
+  }
+};
 // exports.getInforbyID = async (req, res) => {
 //   try {
 //     const trip = await Trip.findById(req.params.id)
-//       .populate({ path: "idVehicle", populate: "idEnterprise" })
-//       .populate("idRoute");
+//       .populate({ path: 'idVehicle', populate: 'idEnterprise' })
+//       .populate('idRoute');
 //     const tickets = await Ticket.findOne({ idTrip: trip._id });
 //     var listTicket = [];
 //     for (var i = 0; i < tickets.quantity.length; i++) {
@@ -228,25 +351,25 @@ exports.deleteById = async (req, res) => {
 //           idTicket: tickets._id,
 //           canceled: false,
 //           seatNumber: i + 1,
-//         }).populate("idUser");
+//         }).populate('idUser');
 //         let offTi = await OfflineTicket.findOne({
 //           idTicket: tickets._id,
 //           seatNumber: `${i + 1}`,
 //         });
 //         if (onlTi) {
 //           let temp = JSON.parse(JSON.stringify(onlTi));
-//           temp.type = "OnlineTicket";
+//           temp.type = 'OnlineTicket';
 //           listTicket.push(temp);
 //         } else if (offTi) {
 //           let temp = JSON.parse(JSON.stringify(offTi));
-//           temp.type = "OfflineTicket";
+//           temp.type = 'OfflineTicket';
 //           listTicket.push(temp);
 //         } else {
 //           const unknow = {
 //             idTicket: tickets._id,
 //             seatNumber: i + 1,
-//             Name: "Unknow",
-//             type: "UnknowTicket",
+//             Name: 'Unknow',
+//             type: 'UnknowTicket',
 //           };
 //           listTicket.push(unknow);
 //         }
