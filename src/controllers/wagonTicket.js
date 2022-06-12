@@ -72,15 +72,11 @@ exports.getAllByIdTrip = async (req, res) => {
   try {
     let payload = [];
 
-    const { idTrip } = req.body;
-
     const wagonTickets = await WagonTicket.find();
-
 
     const { idTrip, startIndex, endIndex } = req.body;
 
     const wagon = await Wagon.find();
-
 
     const trip = await Trip.findOne({ _id: idTrip });
 
