@@ -289,7 +289,7 @@ exports.getTotalTicket_Sale = async (req, res) => {
           year: {
             $year: '$createdAt',
           },
-          price: '$price',
+          price: '$cusPriceTicket',
         },
       },
       {
@@ -381,7 +381,7 @@ exports.getTotalTicket_Sale = async (req, res) => {
           year: {
             $year: '$createdAt',
           },
-          price: '$price',
+          price: '$cusPriceTicket',
         },
       },
       {
@@ -534,7 +534,7 @@ exports.getDateByMonthYear = async (req, res) => {
           year: {
             $year: '$createdAt',
           },
-          price: '$price',
+          price: '$cusPriceTicket',
         },
       },
       {
@@ -769,7 +769,7 @@ exports.getCurrentByEnterprisesList = async (req, res) => {
             $sum: 1,
           },
           totalSale: {
-            $sum: '$price',
+            $sum: '$cusPriceTicket',
           },
         },
       },
@@ -1002,7 +1002,7 @@ exports.getCurrentByEnterprises = async (req, res) => {
             $sum: 1,
           },
           totalSale: {
-            $sum: '$price',
+            $sum: '$cusPriceTicket',
           },
         },
       },
@@ -1202,7 +1202,7 @@ exports.getCurrentDate = async (req, res) => {
               date: '$createdAt',
             },
           },
-          price: '$price',
+          price: '$cusPriceTicket',
         },
       },
       {
@@ -1448,7 +1448,7 @@ exports.getReportEnterprises = async (req, res) => {
           year: {
             $year: '$createdAt',
           },
-          price: '$price',
+          price: '$cusPriceTicket',
         },
       },
       {
