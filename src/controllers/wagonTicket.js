@@ -773,6 +773,11 @@ exports.getCurrentByEnterprisesList = async (req, res) => {
           },
         },
       },
+      {
+        $sort: {
+          totalSale: -1,
+        },
+      },
     ]);
 
     let data = [];
@@ -1004,6 +1009,11 @@ exports.getCurrentByEnterprises = async (req, res) => {
           totalSale: {
             $sum: '$cusPriceTicket',
           },
+        },
+      },
+      {
+        $sort: {
+          totalSale: -1,
         },
       },
     ]);

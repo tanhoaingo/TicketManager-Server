@@ -36,6 +36,11 @@ exports.getAll = async (req, res) => {
         },
       },
       {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+      {
         $project: {
           result: 0,
         },
@@ -122,6 +127,11 @@ exports.getAllbyDay = async (req, res) => {
         },
       },
       {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+      {
         $project: {
           date: {
             $dateToString: {
@@ -164,30 +174,41 @@ exports.getAllbyDay = async (req, res) => {
 
     var dt = new Date();
 
-    dt.getFullYear() + '/' + (dt.getMonth() + 1) + '/' + dt.getDate();
-
     if (result.length > 0) {
       for (let r of result) {
         let temp = {};
         for (let u of userbook) {
+          console.log(
+            r.date,
+            dt.getFullYear() +
+              '-' +
+              (dt.getMonth() + 1 < 10 ? '0' + (dt.getMonth() + 1) : dt.getMonth() + 1) +
+              '-' +
+              (dt.getDate() < 10 ? '0' + dt.getDate() : dt.getDate())
+          );
           if (
             r.idInvoice.equals(u._id) &&
-            r.date === dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate()
+            r.date ===
+              dt.getFullYear() +
+                '-' +
+                (dt.getMonth() + 1 < 10 ? '0' + (dt.getMonth() + 1) : dt.getMonth() + 1) +
+                '-' +
+                (dt.getDate() < 10 ? '0' + dt.getDate() : dt.getDate())
           ) {
             temp.totalPrice = u.totalPrice;
             temp.totalTicket = u.totalTicket;
+            temp.stt = c.toString();
+            temp.fullname = r.fullname;
+            temp.email = r.email;
+            temp.phoneNumber = r.phoneNumber.toString();
+            temp.identifyNumber = r.identifyNumber;
+            temp.payment = r.payment;
+            if (r.isPay) temp.isPay = 'Đã thanh toán';
+            else temp.isPay = 'Chưa thanh toán';
+            payload.push(temp);
+            c++;
           }
         }
-        temp.stt = c.toString();
-        temp.fullname = r.fullname;
-        temp.email = r.email;
-        temp.phoneNumber = r.phoneNumber.toString();
-        temp.identifyNumber = r.identifyNumber;
-        temp.payment = r.payment;
-        if (r.isPay) temp.isPay = 'Đã thanh toán';
-        else temp.isPay = 'Chưa thanh toán';
-        payload.push(temp);
-        c++;
       }
     }
 
