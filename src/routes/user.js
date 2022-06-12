@@ -11,7 +11,7 @@ const {
 const router = require('express').Router();
 
 // router.get("/:id", getById);
-router.get('/:id/info', getById);
+router.get('/:id', getById);
 
 router.put('/:id', update);
 router.put('/changepassword/:id', updatePassword);
