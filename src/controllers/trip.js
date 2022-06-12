@@ -126,6 +126,7 @@ exports.fetchAll = async (req, res) => {
       let arrSeat = [];
       let countSeat = 0;
       result.idTrip = trip._id;
+      result.fixed_price = trip.fixed_price * Math.abs(startIndex - endIndex);
       vehicles
         .filter(item => trip.idVehicle.equals(item._id))
         .map(item => {
