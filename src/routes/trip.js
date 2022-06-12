@@ -5,6 +5,8 @@ const {
   update,
   deleteById,
   fetchAll,
+  getInfoById,
+  getInfoByIdAndLocation,
   // getInforbyID,
 } = require('../controllers/trip.js');
 
@@ -22,6 +24,7 @@ router.put('/:id', update);
 
 router.delete('/:id', deleteById);
 
-// router.get('/:id/informations', getInforbyID);
+router.get('/:id/informations', getInfoById);
+router.post('/:id/informations', getInfoByIdAndLocation);
 
 module.exports = router;
