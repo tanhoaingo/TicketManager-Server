@@ -23,7 +23,9 @@ const wagonTicketRoutes = require('./routes/wagonTicket.js');
 const seatRoutes = require('./routes/seat.js');
 const cusTicketRoutes = require('./routes/cusTicket.js');
 const invoiceRoutes = require('./routes/invoice.js');
+
 const ruleRoutes = require('./routes/rule');
+const userBookingRoutes = require('./routes/userBooking');
 
 const app = express();
 
@@ -31,6 +33,7 @@ env.config();
 
 mongoose
   .connect(
+
     `mongodb+srv://${process.env.MONGO_DB_USER}:${process.env.MONGO_DB_PASSWORD}@cluster0.vj891.mongodb.net/?retryWrites=true&w=majority`
   )
   .then(() => {
@@ -49,11 +52,14 @@ app.use(cors());
 
 app.use(express.static(path.join(__dirname, './uploads')));
 
+app.use('/api/enterprise', enterpriseRoutes);
+
 app.get('/', (req, res, next) => {
   const error = new AppError(`Error on this server`, 404);
 
   return next(error);
 });
+
 
 app.use('/api/enterprise', enterpriseRoutes);
 app.use('/api/city', cityRoutes);
@@ -73,7 +79,11 @@ app.use('/api/wagonTicket', wagonTicketRoutes);
 app.use('/api/seat', seatRoutes);
 app.use('/api/cusTicket', cusTicketRoutes);
 app.use('/api/invoice', invoiceRoutes);
+
 app.use('/api/rule', ruleRoutes);
+
+app.use('/api/userBooking', userBookingRoutes);
+
 
 app.all('*', (req, res, next) => {
   const error = new AppError(`Can't find ${req.originalUrl} on this server`, 404);
