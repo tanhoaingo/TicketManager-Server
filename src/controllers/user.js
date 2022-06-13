@@ -14,10 +14,10 @@ const Vehicle = require('../models/vehicle');
 const WagonTicket = require('../models/wagonTicket');
 
 const nodemailer = require('nodemailer');
-const fs = require('fs');
-const ejs = require('ejs');
-const { convert } = require('html-to-text');
-const juice = require('juice');
+// const fs = require('fs');
+// const ejs = require('ejs');
+// const { convert } = require('html-to-text');
+// const juice = require('juice');
 
 exports.getAll = async (req, res) => {
   try {
@@ -87,12 +87,12 @@ exports.getById = async (req, res) => {
 // };
 
 exports.test = async (req, res) => {
-  // = await nodemailer.createTestAccount();
-
+  await nodemailer.createTestAccount();
   try {
     // create reusable transporter object using the default SMTP transport
+
     let transporter = nodemailer.createTransport({
-      service: 'smtp.gmail.com',
+      service: 'gmail',
       port: 587,
       secure: true, // true for 465, false for other ports
       auth: {
@@ -101,46 +101,46 @@ exports.test = async (req, res) => {
       },
     });
 
-    const sendMail = ({ template: templateName, templateVars, ...restOfOptions }) => {
-      const templatePath = `../templateMail/template.html`; // đường dẫn tới template
-      const options = {
-        ...restOfOptions,
-      };
+    // const sendMail = ({ template: templateName, templateVars, ...restOfOptions }) => {
+    //   const templatePath = `../templateMail/template.html`; // đường dẫn tới template
+    //   const options = {
+    //     ...restOfOptions,
+    //   };
 
-      if (templateName && fs.existsSync(templatePath)) {
-        console.log('hong');
-        const template = fs.readFileSync(templatePath, 'utf-8');
-        const html = ejs.render(template, templateVars);
-        // templateVars là các biến được truyền vào template thông qua hàm render
-        const text = convert(html);
-        const htmlWithStylesInlined = juice(html);
+    //   if (templateName && fs.existsSync(templatePath)) {
+    //     console.log('hong');
+    //     const template = fs.readFileSync(templatePath, 'utf-8');
+    //     const html = ejs.render(template, templateVars);
+    //     // templateVars là các biến được truyền vào template thông qua hàm render
+    //     const text = convert(html);
+    //     const htmlWithStylesInlined = juice(html);
 
-        options.html = htmlWithStylesInlined;
-        options.text = text;
-      }
+    //     options.html = htmlWithStylesInlined;
+    //     options.text = text;
+    //   }
 
-      // hàm smtp.sendMail() này sẽ trả về cho chúng ta một Promise
-      return transporter.sendMail(options);
-    };
+    //   // hàm smtp.sendMail() này sẽ trả về cho chúng ta một Promise
+    //   return transporter.sendMail(options);
+    // };
 
-    // send mail with defined transport object
-    // let info = await transporter.sendMail({
-    //   from: '5Ting Train <5tingteamuit@gmail.com>', // sender address
-    //   to: 'lamvanhongvn@gmail.com', // list of receivers
-    //   subject: 'Vé của bạn đã được đặt thành công', // Subject line
-    //   text: 'Hello world?', // plain text body
-    //   html: '<p>Chào bạn<strong> Hồng,</strong></p> <p>Mã đơn hàng: <strong>3FSX3A</strong> </p> ', // html body
-    // });
-
-    let info = await sendMail({
-      template: 'template',
-      templateVars: {
-        name: 'hong',
-      },
+    //send mail with defined transport object
+    let info = await transporter.sendMail({
       from: '5Ting Train <5tingteamuit@gmail.com>', // sender address
       to: 'lamvanhongvn@gmail.com', // list of receivers
-      subject: 'Vé của bạn đã được đặt thành công', // Subject line})
+      subject: 'Vé của bạn đã được đặt thành công', // Subject line
+      text: 'Hello world?', // plain text body
+      html: '<p>Chào bạn<strong> Hồng,</strong></p> <p>Mã đơn hàng: <strong>3FSX3A</strong> </p> ', // html body
     });
+
+    // let info = await sendMail({
+    //   template: 'template',
+    //   templateVars: {
+    //     name: 'hong',
+    //   },
+    //   from: '5Ting Train <5tingteamuit@gmail.com>', // sender address
+    //   to: 'lamvanhongvn@gmail.com', // list of receivers
+    //   subject: 'Vé của bạn đã được đặt thành công', // Subject line})
+    // });
 
     console.log('Message sent: %s', info.messageId);
     // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>

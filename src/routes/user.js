@@ -11,12 +11,12 @@ const {
 const router = require('express').Router();
 
 // router.get("/:id", getById);
+router.get('/test', test);
 router.get('/:id', getById);
 
 router.put('/:id', update);
 router.put('/changepassword/:id', updatePassword);
 router.post('/fetchUserTicket', fetchUserTicket);
-router.get('/test', test);
 
 router.get('/', getAll);
 
